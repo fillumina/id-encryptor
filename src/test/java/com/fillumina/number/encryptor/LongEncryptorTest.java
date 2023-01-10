@@ -4,7 +4,7 @@ package com.fillumina.number.encryptor;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class LongEncryptorTest extends AbstractEncryptorTest {
+public class LongEncryptorTest extends AbstractLongEncryptorTest {
 
     public static void main(String[] args) {
         LongEncryptor ne = new LongEncryptor("barabba");

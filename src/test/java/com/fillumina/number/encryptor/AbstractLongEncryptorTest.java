@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public abstract class AbstractEncryptorTest {
+public abstract class AbstractLongEncryptorTest {
 
     abstract LongEncryptor createEncryptor(String key);
 

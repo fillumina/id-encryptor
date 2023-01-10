@@ -26,7 +26,7 @@ public class UtilsTest {
     @Test
     public void shouldPadAndTruncate() {
         for (int i=0; i<16; i++) {
-            assertEquals(8, Utils.pad(new byte[i]).length);
+            assertEquals(8, Utils.padTo8Bytes(new byte[i]).length);
         }
     }
 

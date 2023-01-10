@@ -25,7 +25,7 @@ public class Utils {
         return longBuffer.get();
     }
 
-    public static byte[] pad(byte[] data) {
+    public static byte[] padTo8Bytes(byte[] data) {
         if (data == null) {
             return new byte[8];
         }
