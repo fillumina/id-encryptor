@@ -1,11 +1,12 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Uses Blowfish algorithm to encrypt long values. Useful to scramble ordered sequences.
- * The use of Blowfish is required by the fact that it works on block of 64 bits.
+ * Uses ECB/NoPadding on the given algorithm to encrypt padded byte arrays.
+ * Using ECB while generally discouraged is ideal if the data to encrypt is just as
+ * long as the encryption block.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
@@ -15,6 +16,14 @@ public class BaseEncryptor {
     private final SecretKeySpec secretKeySpec;
     private final int paddingBytes;
 
+    /**
+     * @param algorithm a Java
+     * <a href='https://docs.oracle.com/javase/9/docs/specs/security/standard-names.html'>Algorithm
+     * Standard Name</a>
+     * @param pad how many bytes the input/output shoudl be padded with (depends on how many bits
+     * the algorithm block econdes)
+     * @param key a string representing a key (password)
+     */
     public BaseEncryptor(String algorithm, int pad, String key) {
         this.cipherAlgorithm = algorithm + "/ECB/NoPadding";
         this.paddingBytes = pad;
@@ -49,6 +58,9 @@ public class BaseEncryptor {
     }
 
     public static byte[] pad(int bytes, byte[] data) {
+        if (bytes == 0) {
+            return data;
+        }
         if (data == null) {
             return new byte[bytes];
         }

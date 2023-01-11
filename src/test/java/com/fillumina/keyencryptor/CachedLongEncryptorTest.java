@@ -1,4 +1,7 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
+
+import com.fillumina.keyencryptor.LongEncryptor;
+import com.fillumina.keyencryptor.CachedLongEncryptor;
 
 /**
  *

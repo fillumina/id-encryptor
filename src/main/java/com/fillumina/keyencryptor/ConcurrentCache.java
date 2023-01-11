@@ -1,22 +1,28 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Creates a simple Concurrent Cache that uses a provided syncronized map implementation.
+ * Creates a simple Concurrent Cache that uses a provided map implementation.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class ConcurrentCache<K,V> {
+class ConcurrentCache<K,V> {
 
     private final int mask;
     private final Map<K,V>[] mapArray;
 
+    /**
+     * @param concurrency the level of desired concurrency (how many concurrent threads can access
+     * the map on average without contention)
+     * @param supplier a {@code Map<K,V>} supplier. It shouldn't be synchronized as it will be
+     * wrapped into a {@link Collections#synchronizedMap(java.util.Map)}.
+     */
     public ConcurrentCache(int concurrency, Supplier<Map<K,V>> supplier) {
         int capacity = tableSizeFor(concurrency);
-        this.mask = capacity - 1;
+        this.mask = capacity / 2 - 1;
         this.mapArray = new Map[capacity];
         for (int i=0; i<capacity; i++) {
             Map<K,V> nodeMap = supplier.get();
@@ -26,7 +32,7 @@ public class ConcurrentCache<K,V> {
     }
 
     private Map<K,V> selectMap(K key) {
-        int index = Math.abs(hash(key) % mask);
+        int index = mask + hash(key) % mask;
         return mapArray[index];
     }
 

@@ -1,4 +1,4 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
 
 import java.util.WeakHashMap;
 

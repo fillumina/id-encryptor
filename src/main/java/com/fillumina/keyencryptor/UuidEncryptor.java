@@ -1,11 +1,11 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
- * Uses Blowfish algorithm to encrypt long values. Useful to scramble ordered sequences.
- * The use of Blowfish is required by the fact that it works on block of 64 bits.
+ * Uses AES algorithm to encrypt UUIDs. Useful to scramble sequential UUIDs.
+ * AES can use blocks of 128 bits (which fits UUID size perfectly) and it's fast.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */

@@ -1,5 +1,6 @@
-package com.fillumina.number.encryptor;
+package com.fillumina.keyencryptor;
 
+import com.fillumina.keyencryptor.LongEncryptor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
