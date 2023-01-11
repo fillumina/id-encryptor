@@ -1,8 +1,5 @@
 package com.fillumina.keyencryptor;
 
-import com.fillumina.keyencryptor.LongEncryptor;
-import com.fillumina.keyencryptor.CachedLongEncryptor;
-
 /**
  *
  * @author Francesco Illuminati <fillumina@gmail.com>

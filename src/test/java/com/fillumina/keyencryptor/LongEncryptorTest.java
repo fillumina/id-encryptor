@@ -1,6 +1,5 @@
 package com.fillumina.keyencryptor;
 
-import com.fillumina.keyencryptor.LongEncryptor;
 import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
