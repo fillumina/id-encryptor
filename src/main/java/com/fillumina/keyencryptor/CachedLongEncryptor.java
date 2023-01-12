@@ -25,9 +25,9 @@ public class CachedLongEncryptor extends LongEncryptor {
         if (value != null) {
             return value;
         }
-        value = super.decrypt(l);
-        decryptCache.put(l, value);
-        return value;
+        long decrypted = super.decrypt(l);
+        decryptCache.put(l, decrypted);
+        return decrypted;
     }
 
     @Override
@@ -36,9 +36,9 @@ public class CachedLongEncryptor extends LongEncryptor {
         if (value != null) {
             return value;
         }
-        value = super.encrypt(l);
-        encryptCache.put(l, value);
-        return value;
+        long encrypted = super.encrypt(l);
+        encryptCache.put(l, encrypted);
+        return encrypted;
     }
 
 }
