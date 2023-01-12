@@ -5,7 +5,7 @@ import java.nio.LongBuffer;
 
 /**
  * Uses Blowfish algorithm to encrypt long values. Useful to scramble ordered sequences.
- * The use of Blowfish is required by the fact that it works on blocks of 64 bits.
+ * Blowfish works on blocks of 64 bits.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */

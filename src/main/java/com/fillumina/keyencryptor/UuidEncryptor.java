@@ -5,7 +5,7 @@ import java.util.UUID;
 
 /**
  * Uses AES algorithm to encrypt UUIDs. Useful to scramble sequential UUIDs.
- * AES can use blocks of 128 bits (which fits UUID size perfectly) and it's fast.
+ * AES works on blocks of 128 bits.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */

@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Uses
  * <a href='https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm/'>ECB/NoPadding</a>
  * on the given algorithm to encrypt padded byte arrays. Using ECB while generally discouraged is
- * ideal if the data to encrypt is just as long as the encryption block.
+ * ideal if the data to encrypt has as many bits as the encryption block.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
