@@ -1,6 +1,6 @@
 # ID Encryptor
 
-Provides ways to encrypt long values (64 bit) and UUIDs (128 bit).
+Encrypt long values (64 bit) and UUIDs (128 bit).
 
 ## UUID
 
