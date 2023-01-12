@@ -6,6 +6,10 @@ import java.util.UUID;
 /**
  * Uses AES algorithm to encrypt UUIDs. Useful to scramble sequential UUIDs.
  * AES works on blocks of 128 bits.
+ * <br>
+ * Note that encrypted UUIDs will have their version and variant scrambled with
+ * random (totally inaccurate) values but they are still printable and treated as regular
+ * UUIDs which is what matters.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
