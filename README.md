@@ -12,11 +12,11 @@ An [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) is basica
 
 ### TSID
 
-[TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID but it's targeted towards smaller systems with a maximum node count of about 1024 (can be adjusted a bit depending on a key generation rate trade-off). Because the 64 bit TSID can be encoded in a single long value and is generated in sequence (again to fix the index problem) there is a long encryptor available in this package in case it needs to be scrambled.
+[TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID but is targeted towards smaller systems with a maximum node count of about 1024. Because the 64 bit TSID can be encoded in a single long value and is generated in sequence (again to fix the index problem) there is a long encryptor available in this package in case it needs to be scrambled.
 
 ## Encryption
 
-The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for TSID (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). ECB mode is discouraged for encrypting long messages but it's perfectly adequate if the data to encrypt matches the size of the cipher block.
+The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for TSID (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). ECB mode is discouraged for encrypting multi blocks messages but it's perfectly adequate if the data to encrypt matches the size of one single cipher block.
 
 ## Cache
 
