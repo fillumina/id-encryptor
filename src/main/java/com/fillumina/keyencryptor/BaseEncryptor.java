@@ -41,9 +41,10 @@ public class BaseEncryptor {
     }
 
     public byte[] encrypt(byte[] data) {
+        final byte[] padded = pad(paddingBytes, data);
         try {
             synchronized (encryptionCipher) {
-                return encryptionCipher.doFinal(pad(paddingBytes, data));
+                return encryptionCipher.doFinal(padded);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -51,9 +52,10 @@ public class BaseEncryptor {
     }
 
     public byte[] decrypt(byte[] data) {
+        final byte[] padded = pad(paddingBytes, data);
         try {
             synchronized (decryptionCipher) {
-                return decryptionCipher.doFinal(pad(paddingBytes, data));
+                return decryptionCipher.doFinal(padded);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -67,12 +69,13 @@ public class BaseEncryptor {
         if (data == null) {
             return new byte[bytes];
         }
-        if (data.length < bytes) {
+        final int length = data.length;
+        if (length < bytes) {
             byte[] padded = new byte[bytes];
-            System.arraycopy(data, 0, padded, 0, data.length);
+            System.arraycopy(data, 0, padded, 0, length);
             return padded;
         }
-        if (data.length > bytes) {
+        if (length > bytes) {
             byte[] trunc = new byte[bytes];
             System.arraycopy(data, 0, trunc, 0, bytes);
             return trunc;
