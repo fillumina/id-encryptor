@@ -16,7 +16,7 @@ A unit of data (record) is addressed by an SQL Database using an identifier. An 
 
 ## Encryption
 
-The proposed encrypting algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for TSID (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with the [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). The ECB mode is discouraged to encrypt long messages but it's perfectly adequate if the data to encrypt matches the size of the cipher block.
+The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for TSID (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). ECB mode is discouraged for encrypting long messages but it's perfectly adequate if the data to encrypt matches the size of the cipher block.
 
 ## Cache
 
