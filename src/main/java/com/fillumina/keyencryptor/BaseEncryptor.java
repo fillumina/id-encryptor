@@ -13,9 +13,9 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class BaseEncryptor {
 
-    private final String cipherAlgorithm;
-    private final SecretKeySpec secretKeySpec;
     private final int paddingBytes;
+    private final Cipher encryptionCipher;
+    private final Cipher decryptionCipher;
 
     /**
      * @param algorithm a Java
@@ -26,11 +26,15 @@ public class BaseEncryptor {
      * @param key a string representing a key (password)
      */
     public BaseEncryptor(String algorithm, int pad, String key) {
-        this.cipherAlgorithm = algorithm + "/ECB/NoPadding";
         this.paddingBytes = pad;
+        String cipherAlgorithm = algorithm + "/ECB/NoPadding";
         try {
-            secretKeySpec = new SecretKeySpec(
+            SecretKeySpec secretKeySpec = new SecretKeySpec(
                     pad(paddingBytes, key.getBytes()), algorithm);
+            encryptionCipher = Cipher.getInstance(cipherAlgorithm);
+            encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            decryptionCipher = Cipher.getInstance(cipherAlgorithm);
+            decryptionCipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,10 +42,9 @@ public class BaseEncryptor {
 
     public byte[] encrypt(byte[] data) {
         try {
-            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-            byte[] encoded = cipher.doFinal(pad(paddingBytes, data));
-            return encoded;
+            synchronized (encryptionCipher) {
+                return encryptionCipher.doFinal(pad(paddingBytes, data));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,10 +52,9 @@ public class BaseEncryptor {
 
     public byte[] decrypt(byte[] data) {
         try {
-            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-            byte[] decoded = cipher.doFinal(pad(paddingBytes, data));
-            return decoded;
+            synchronized (decryptionCipher) {
+                return decryptionCipher.doFinal(pad(paddingBytes, data));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
