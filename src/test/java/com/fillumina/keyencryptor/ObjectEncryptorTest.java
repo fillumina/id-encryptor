@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class TreeObjectEncryptorTest {
+public class ObjectEncryptorTest {
     private static final Long NESTED_LONG_VALUE = 123L;
     private static final UUID NESTED_UUID_VALUE = UUID.randomUUID();
     private static final Long BEAN_LONG_VALUE = 123L;
@@ -18,14 +18,14 @@ public class TreeObjectEncryptorTest {
     private static final String PASSWORD = "xyz123abc-/o";
 
     private ABean bean;
-    private TreeObjectEncryptor objectEncryptor;
+    private ObjectEncryptor objectEncryptor;
 
     @BeforeEach
     public void init() {
         ANestedBean nested = new ANestedBean(NESTED_LONG_VALUE, NESTED_UUID_VALUE);
         this.bean = new ABean(BEAN_LONG_VALUE, BEAN_UUID_VALUE, nested);
 
-        this.objectEncryptor = TreeObjectEncryptor.create(PASSWORD);
+        this.objectEncryptor = ObjectEncryptor.create(PASSWORD);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class TreeObjectEncryptorTest {
 
     @Test
     public void shouldEncryptObject() {
-        objectEncryptor.encryptObject(bean);
+        objectEncryptor.encryptTree(bean);
 
         assertThat(bean.getEncryptableLong()).isNotEqualTo(BEAN_LONG_VALUE);
         assertThat(bean.getNotEncryptableLong()).isEqualTo(BEAN_LONG_VALUE);
@@ -62,10 +62,44 @@ public class TreeObjectEncryptorTest {
 
     @Test
     public void shouldDecryptObject() {
-        objectEncryptor.encryptObject(bean);
-        objectEncryptor.decryptObject(bean);
+        objectEncryptor.encryptTree(bean);
+        objectEncryptor.decryptTree(bean);
 
         testUnparsedBeanValues();
+    }
+
+    @Test
+    public void shouldEncryptLong() {
+        Long encrypted = objectEncryptor.encrypt(BEAN_LONG_VALUE);
+
+        assertThat(encrypted)
+                .isNotNull()
+                .isNotEqualTo(BEAN_LONG_VALUE);
+    }
+
+    @Test
+    public void shouldDecryptLong() {
+        Long encrypted = objectEncryptor.encrypt(BEAN_LONG_VALUE);
+        Long decrypted = objectEncryptor.decrypt(encrypted);
+
+        assertThat(decrypted).isEqualTo(BEAN_LONG_VALUE);
+    }
+
+    @Test
+    public void shouldEncryptUUID() {
+        UUID encrypted = objectEncryptor.encrypt(BEAN_UUID_VALUE);
+
+        assertThat(encrypted)
+                .isNotNull()
+                .isNotEqualTo(BEAN_UUID_VALUE);
+    }
+
+    @Test
+    public void shouldDecryptUUID() {
+        UUID encrypted = objectEncryptor.encrypt(BEAN_UUID_VALUE);
+        UUID decrypted = objectEncryptor.decrypt(encrypted);
+
+        assertThat(decrypted).isEqualTo(BEAN_UUID_VALUE);
     }
 
     public static class ANestedBean {

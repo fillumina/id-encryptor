@@ -3,7 +3,7 @@ package com.fillumina.keyencryptor;
 import java.util.WeakHashMap;
 
 /**
- * Blowfish encryption is very demanding computationally so a cache might be useful.
+ * Encryption is very demanding process computationally so a cache might be useful.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
