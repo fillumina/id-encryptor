@@ -9,26 +9,14 @@ import java.nio.LongBuffer;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class LongEncryptor extends BaseEncryptor {
-    private static final String ALGORITHM = "Blowfish";
+public class LongEncryptor extends GenericEncryptor<Long> {
 
     public LongEncryptor(String key) {
-        super(ALGORITHM, 8, key);
+        super("Blowfish", 8, key);
     }
 
-    public long encrypt(long l) {
-        byte[] data = convertLongToByteArray(l);
-        byte[] enc = encrypt(data);
-        return convertByteArrayToLong(enc);
-    }
-
-    public long decrypt(long l) {
-        byte[] data = convertLongToByteArray(l);
-        byte[] plain = decrypt(data);
-        return convertByteArrayToLong(plain);
-    }
-
-    public static byte[] convertLongToByteArray(long l) {
+    @Override
+    protected byte[] convertToByteArray(Long l) {
         if (l == 0) {
             return new byte[8];
         }
@@ -38,7 +26,8 @@ public class LongEncryptor extends BaseEncryptor {
         return byteBuffer.array();
     }
 
-    public static long convertByteArrayToLong(byte[] array) {
+    @Override
+    protected Long convertFromByteArray(byte[] array) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(array);
         LongBuffer longBuffer = byteBuffer.asLongBuffer();
         return longBuffer.get();

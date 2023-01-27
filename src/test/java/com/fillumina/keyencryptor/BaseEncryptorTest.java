@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class AbstractLongEncryptorPadTest {
+public class BaseEncryptorTest {
 
     @Test
     public void shouldPadAndTruncate8Bytes() {

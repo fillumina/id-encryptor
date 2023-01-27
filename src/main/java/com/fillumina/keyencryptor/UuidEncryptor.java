@@ -13,31 +13,22 @@ import java.util.UUID;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class UuidEncryptor extends BaseEncryptor {
-    private static final String ALGORITHM = "AES";
+public class UuidEncryptor extends GenericEncryptor<UUID> {
 
     public UuidEncryptor(String key) {
-        super(ALGORITHM, 16, key);
+        super("AES", 16, key);
     }
 
-    public UUID encrypt(UUID uuid) {
-        byte[] encrypted = encrypt(convertUUIDToBytes(uuid));
-        return convertBytesToUUID(encrypted);
-    }
-
-    public UUID decrypt(UUID uuid) {
-        byte[] decrypted = decrypt(convertUUIDToBytes(uuid));
-        return convertBytesToUUID(decrypted);
-    }
-
-    public static byte[] convertUUIDToBytes(UUID uuid) {
+    @Override
+    protected byte[] convertToByteArray(UUID uuid) {
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
         return bb.array();
     }
 
-    public static UUID convertBytesToUUID(byte[] bytes) {
+    @Override
+    protected UUID convertFromByteArray(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         long high = byteBuffer.getLong();
         long low = byteBuffer.getLong();
