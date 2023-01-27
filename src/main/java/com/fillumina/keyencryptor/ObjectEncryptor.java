@@ -1,7 +1,9 @@
 package com.fillumina.keyencryptor;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,11 +66,15 @@ public class ObjectEncryptor {
     }
 
     private void traverse(boolean encrypt, Object object) {
-        for (Field field : object.getClass().getDeclaredFields()) {
+        if (object == null) {
+            return;
+        }
+        final Class<? extends Object> clazz = object.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
             Class<?> fieldClass = field.getType();
             Encryptable encryptedAnnotation = field.getAnnotation(Encryptable.class);
-            if (encryptedAnnotation != null) {
-                try {
+            try {
+                if (encryptedAnnotation != null) {
                     field.setAccessible(true);
                     Encryptor encryptor = encryptorMap.get(fieldClass);
                     Object fieldValue = field.get(object);
@@ -76,17 +82,21 @@ public class ObjectEncryptor {
                             ? encryptor.encrypt(fieldValue)
                             : encryptor.decrypt(fieldValue);
                     field.set(object, processed);
-                } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            if (!fieldClass.getCanonicalName().startsWith("java.")) {
-                try {
+                } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                    field.setAccessible(true);
+                    Iterable<?> iterable = (Iterable<?>) field.get(object);
+                    if (iterable != null) {
+                        Iterator<?> it = iterable.iterator();
+                        while (it.hasNext()) {
+                            traverse(encrypt, it.next());
+                        }
+                    }
+                } else if (!fieldClass.getCanonicalName().startsWith("java.")) {
                     field.setAccessible(true);
                     traverse(encrypt, field.get(object));
-                } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
                 }
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                throw new RuntimeException(ex);
             }
         }
     }
