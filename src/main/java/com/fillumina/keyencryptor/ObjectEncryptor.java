@@ -55,15 +55,15 @@ public class ObjectEncryptor {
 
     /** Encrypt all fields annotated with {@link Encryptable} in place. */
     public void encryptTree(Object object) {
-        parse(true, object);
+        traverse(true, object);
     }
 
     /** Decrypt all fields annotated with {@link Encryptable} in place. */
     public void decryptTree(Object object) {
-        parse(false, object);
+        traverse(false, object);
     }
 
-    private void parse(boolean encrypt, Object object) {
+    private void traverse(boolean encrypt, Object object) {
         for (Field field : object.getClass().getDeclaredFields()) {
             Class<?> fieldClass = field.getType();
             Encryptable encryptedAnnotation = field.getAnnotation(Encryptable.class);
@@ -83,7 +83,7 @@ public class ObjectEncryptor {
             if (!fieldClass.getCanonicalName().startsWith("java.")) {
                 try {
                     field.setAccessible(true);
-                    parse(encrypt, field.get(object));
+                    traverse(encrypt, field.get(object));
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
                     throw new RuntimeException(ex);
                 }
