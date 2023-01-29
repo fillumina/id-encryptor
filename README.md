@@ -24,7 +24,7 @@ Cached version of the encryptors is also provided to improve performances. It us
 
 ## Jackson serialized/ deserializer
 
-The ID encryption should happen at the **API boundaries** and the serialization of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them. An added benefit is that all the annotated indexes will be automatically translated back and forth (and long will be converted to strings as well). The project provides serialization and deserialization helper for both long and UUID when used as single fields, into lists or as key in a map. There are annotations provided as a shortcut as well.
+The ID encryption should happen at the **API boundaries** and the serialization of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them. An added benefit is that all the annotated indexes will be automatically translated back and forth (and long will be converted to string using the Crockford encoding as well to overcome the Javascript max integer number limitation). The project provides serialization and deserialization helper for both long and UUID when used as single fields, into lists or as key in a map. There are annotations provided as a shortcut as well.
 
 ```java
 public static class Bean {
