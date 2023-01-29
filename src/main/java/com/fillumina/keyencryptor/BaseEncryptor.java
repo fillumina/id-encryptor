@@ -1,5 +1,6 @@
 package com.fillumina.keyencryptor;
 
+import java.io.UnsupportedEncodingException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -30,7 +31,7 @@ public class BaseEncryptor {
         String cipherAlgorithm = algorithm + "/ECB/NoPadding";
         try {
             SecretKeySpec secretKeySpec = new SecretKeySpec(
-                    pad(paddingBytes, key.getBytes()), algorithm);
+                    processPassword(paddingBytes, key), algorithm);
             encryptionCipher = Cipher.getInstance(cipherAlgorithm);
             encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             decryptionCipher = Cipher.getInstance(cipherAlgorithm);
@@ -83,4 +84,16 @@ public class BaseEncryptor {
         return data;
     }
 
+    static byte[] processPassword(int padding, String password) {
+        try {
+            byte[] result = new byte[padding];
+            byte[] array = password.getBytes("UTF-8");
+            for (int i=0; i<array.length; i++) {
+                result[i % padding] ^= array[i];
+            }
+            return result;
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }
