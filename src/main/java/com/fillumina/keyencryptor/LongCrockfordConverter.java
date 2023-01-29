@@ -121,7 +121,7 @@ public class LongCrockfordConverter {
 	 * @param chars a char array
 	 * @return boolean true if valid
 	 */
-	static boolean isValidCharArray(final char[] chars) {
+	public static boolean isValidCharArray(final char[] chars) {
 
 		if (chars == null || chars.length != 13) {
 			return false; // null or wrong size!
