@@ -22,11 +22,63 @@ The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/
 
 Cached version of the encryptors is also provided to improve performances. It uses weak references so that cached memory could be reclaimed by the GC.
 
-### Jackson serialized/ deserializer
+## Jackson serialized/ deserializer
 
 The ID encryption should happen at the **API boundaries** and the serialization of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them. An added benefit is that all the annotated indexes will be automatically translated back and forth (and long will be converted to strings as well). The project provides serialization and deserialization helper for both long and UUID when used as single fields, into lists or as key in a map. There are annotations provided as a shortcut as well.
 
-Of couse parameter passed on the URL should be converted manually.
+```java
+public static class Bean {
+    @Encryptable
+    Long encryptableLongValue;
+
+    Long nonEncryptableLongValue;
+
+    @EncryptableCollection
+    List<Long> encryptableLongList;
+
+    List<Long> nonEncryptableLongList;
+
+    @EncryptableKey
+    Map<Long, String> encryptableLongMap;
+
+    Map<Long, String> nonEncryptableLongMap;
+
+    @Encryptable
+    UUID encryptableUuidValue;
+
+    UUID nonEncryptableUuidValue;
+
+    @EncryptableCollection
+    List<UUID> encryptableUuidList;
+
+    List<UUID> nonEncryptableUuidList;
+
+    @EncryptableKey
+    Map<UUID, String> encryptableUuidMap;
+
+    Map<UUID, String> nonEncryptableUuidMap;
+} 
+```
+
+Of course ID parameters passed on the URL should be converted manually.
+
+```java
+@GetMapping("/invoices/{customerId}")
+public List<BigDecimal> getExpenses(@PathVariable String customerId) {
+    UUID encryptedUserId = UUID.fromString(customerId);
+    UUID userId = EncryptorsHolder.getUuidEncryptor().decrypt(encryptedUserId);
+    List<BigDecimal> invoices = accountinService.getExpensesOfCustomer(userId);
+    return invoices;
+}
+```
+
+Don;t forget to init the `EncryptorsHolder` with a password:
+
+```java
+EncryptorsHolder.initEncryptorsWithPassword("abracadabra");
+```
+
+Unfortunately using a static factory was the only way to cope with the fact that de/serializers object are created by Jackson directly and cannot be initialized with a password (any suggestions?).
 
 ## Operation flows
 
