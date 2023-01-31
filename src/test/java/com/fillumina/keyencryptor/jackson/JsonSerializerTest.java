@@ -99,7 +99,7 @@ public class JsonSerializerTest {
         this.encryptedBean = objectMapper.readValue(serialized, SerializedBean.class);
         this.decryptedBean = objectMapper.readValue(serialized, Bean.class);
 
-        System.out.println("SERIALIZED: " + serialized);
+        //System.out.println("SERIALIZED: " + serialized);
     }
 
     @Test

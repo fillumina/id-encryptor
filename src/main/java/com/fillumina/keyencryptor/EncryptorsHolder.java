@@ -26,6 +26,9 @@ public class EncryptorsHolder {
     }
 
     public static String encryptLong(Long value) {
+        if (value == null) {
+            return null;
+        }
         String result = (String) cache.get(value);
         if (result == null) {
             Long encryptedLong = longEncryptor.encrypt((long)value);
@@ -46,6 +49,9 @@ public class EncryptorsHolder {
     }
 
     public static String encryptUuid(UUID value) {
+        if (value == null) {
+            return null;
+        }
         String result = (String) cache.get(value);
         if (result == null) {
             UUID encryptedUuid = uuidEncryptor.encrypt((UUID)value);
@@ -65,8 +71,11 @@ public class EncryptorsHolder {
         return result;
     }
 
-    public static String encryptLongAsUUID(Long value) {
-        UUID uuid = new UUID(uuidMostSignificantLong, value);
+    public static String encryptLongAsUUID(long fieldValue, Long id) {
+        if (id == null) {
+            return null;
+        }
+        UUID uuid = new UUID(uuidMostSignificantLong | fieldValue, id);
         return encryptUuid(uuid);
     }
 
@@ -82,6 +91,6 @@ public class EncryptorsHolder {
     public static void initEncryptorsWithPassword(String password, long nodeId) {
         longEncryptor = new LongEncryptor(password);
         uuidEncryptor = new UuidEncryptor(password);
-        uuidMostSignificantLong = nodeId;
+        uuidMostSignificantLong = nodeId << 32;
     }
 }

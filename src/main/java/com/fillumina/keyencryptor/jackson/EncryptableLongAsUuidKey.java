@@ -15,5 +15,5 @@ import java.lang.annotation.RetentionPolicy;
 @JsonSerialize(keyUsing = LongAsUuidEncryptorKeySerializer.class)
 @JsonDeserialize(keyUsing = LongAsUuidEncryptorKeyDeserializer.class)
 public @interface EncryptableLongAsUuidKey {
-
+    public long value() default 0;
 }
