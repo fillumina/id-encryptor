@@ -2,6 +2,7 @@ package com.fillumina.keyencryptor;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -9,10 +10,18 @@ import java.util.function.Supplier;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-class ConcurrentCache<K,V> {
+class ConcurrentCache<K,V> implements Cache<K, V> {
 
     private final int mask;
     private final Map<K,V>[] mapArray;
+
+    public ConcurrentCache() {
+        this(32);
+    }
+
+    public ConcurrentCache(int concurrency) {
+        this(concurrency, WeakHashMap::new);
+    }
 
     /**
      * @param concurrency the level of desired concurrency (how many concurrent threads can access
@@ -36,10 +45,12 @@ class ConcurrentCache<K,V> {
         return mapArray[index];
     }
 
+    @Override
     public V get(K key) {
         return selectMap(key).get(key);
     }
 
+    @Override
     public V put(K key, V value) {
         return selectMap(key).put(key,value);
     }

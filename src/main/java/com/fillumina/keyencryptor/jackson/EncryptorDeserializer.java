@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fillumina.keyencryptor.EncryptorsHolder;
 import com.fillumina.keyencryptor.LongCrockfordConverter;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  *
@@ -28,13 +27,9 @@ public class EncryptorDeserializer extends StdDeserializer<Object> {
       throws IOException, JsonProcessingException {
         String encryptedString = jp.getText();
         if (LongCrockfordConverter.isValidCharArray(encryptedString.toCharArray())) {
-            Long encryptedLong = LongCrockfordConverter.fromString(encryptedString);
-            Long value = EncryptorsHolder.getLongEncryptor().decrypt(encryptedLong);
-            return value;
+            return EncryptorsHolder.decryptLong(encryptedString);
         } else {
-            UUID encryptedUuid = UUID.fromString(encryptedString);
-            UUID decryptedUuid = EncryptorsHolder.getUuidEncryptor().decrypt(encryptedUuid);
-            return decryptedUuid;
+            return EncryptorsHolder.decryptUuid(encryptedString);
         }
     }
 }
