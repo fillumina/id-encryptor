@@ -53,15 +53,28 @@ public class ConcurrentCache<K,V> implements Cache<K, V> {
     }
 
     @Override
-    public V get(K key) {
+    public V getOrCreate(K key, Supplier<V> valueGenerator) {
+        if (key == null) {
+            return null;
+        }
         final Map<K, V> map = selectMap(key);
         synchronized(map) {
-            return map.get(key);
+            V value = map.get(key);
+            if (value == null) {
+                value = valueGenerator.get();
+                map.put(key, value);
+            }
+            return value;
         }
     }
 
-    @Override
-    public V put(K key, V value) {
+    /** used by tests */
+    V get(K key) {
+        return getOrCreate(key, () -> null);
+    }
+
+    /** used by tests */
+    V put(K key, V value) {
         final Map<K, V> map = selectMap(key);
         synchronized(map) {
             return map.put(key,value);

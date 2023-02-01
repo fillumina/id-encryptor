@@ -24,49 +24,31 @@ public class EncryptorsHolder {
         }
 
         public String encryptLong(Long value) {
-            if (value == null) {
-                return null;
-            }
-            String result = (String) cache.get(value);
-            if (result == null) {
-                Long encryptedLong = longEncryptor.encrypt((long)value);
-                result = LongCrockfordConverter.toString(encryptedLong);
-                cache.put(value, result);
-            }
-            return result;
+            return (String) cache.getOrCreate(value, () -> {
+                Long encryptedLong = longEncryptor.encrypt(value);
+                return LongCrockfordConverter.toString(encryptedLong);
+            });
         }
 
         public Long decryptLong(String value) {
-            Long result = (Long) cache.get(value);
-            if (result == null) {
+            return (Long) cache.getOrCreate(value, () -> {
                 Long encryptedLong = LongCrockfordConverter.fromString(value);
-                result = longEncryptor.decrypt(encryptedLong);
-                cache.put(value, result);
-            }
-            return result;
+                return longEncryptor.decrypt(encryptedLong);
+            });
         }
 
         public String encryptUuid(UUID value) {
-            if (value == null) {
-                return null;
-            }
-            String result = (String) cache.get(value);
-            if (result == null) {
-                UUID encryptedUuid = uuidEncryptor.encrypt((UUID)value);
-                result = encryptedUuid.toString();
-                cache.put(value, result);
-            }
-            return result;
+            return (String) cache.getOrCreate(value, () -> {
+                UUID encryptedUuid = uuidEncryptor.encrypt(value);
+                return encryptedUuid.toString();
+            });
         }
 
         public UUID decryptUuid(String value) {
-            UUID result = (UUID) cache.get(value);
-            if (result == null) {
+            return (UUID) cache.getOrCreate(value, () -> {
                 UUID encryptedUuid = UUID.fromString(value);
-                result = uuidEncryptor.decrypt(encryptedUuid);
-                cache.put(value, result);
-            }
-            return result;
+                return uuidEncryptor.decrypt(encryptedUuid);
+            });
         }
 
         public String encryptLongAsUUID(long fieldValue, Long id) {
