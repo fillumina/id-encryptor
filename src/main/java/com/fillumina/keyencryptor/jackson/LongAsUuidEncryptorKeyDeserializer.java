@@ -12,7 +12,7 @@ public class LongAsUuidEncryptorKeyDeserializer extends KeyDeserializer {
 
     @Override
     public Object deserializeKey(String key, DeserializationContext ctxt) {
-        return EncryptorsHolder.decryptLongAsUUID(key);
+        return EncryptorsHolder.decryptLongAsUuid(key);
     }
 
 }

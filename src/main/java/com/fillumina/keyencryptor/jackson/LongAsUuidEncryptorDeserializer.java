@@ -24,6 +24,6 @@ public class LongAsUuidEncryptorDeserializer extends StdDeserializer<Long> {
     @Override
     public Long deserialize(JsonParser jp, DeserializationContext ctxt)
       throws IOException, JsonProcessingException {
-        return EncryptorsHolder.decryptLongAsUUID(jp.getText());
+        return EncryptorsHolder.decryptLongAsUuid(jp.getText());
     }
 }

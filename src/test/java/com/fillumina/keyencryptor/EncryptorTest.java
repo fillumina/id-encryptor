@@ -18,4 +18,5 @@ public class EncryptorTest {
             assertEquals(i, encryptor.decrypt(i));
         }
     }
+    
 }

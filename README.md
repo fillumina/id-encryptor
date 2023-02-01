@@ -4,35 +4,37 @@ Encrypts long values (64 bit) and UUIDs (128 bit).
 
 ## Scenario
 
-A unit of data is addressed by an SQL Database using an identifier that might be *natural* (being part of the data) or *surrogate* (assigned externally). A commonly used surrogate identifier is a sequential number called ID. This method is simple, compact and fast but given IDs are not unique among a distributed system: once a system needs to talk with others the ID must be substituted with something more universal. One solution is to use very large random numbers: they can be assigned by any system autonomously and are guaranteed unique by their randomness.
+A unit of data is addressed by an SQL Database using an identifier. It can be *natural* (being part of the data) or *surrogate* (assigned externally). A commonly used, and very practical, surrogate identifier is a sequential number called ID generally assigned by the database itself. This is very efficient on a single system but suffers the problem of not being unique in a distributed environment: every independent system (or at least independent database) has its own sequence. One solution is to use very large random numbers (with a very small collision probability) or to create them in a way that they are unique among the distributed system (in most cases the unicity constraint can be restricted into the context of the distributed application).
 
 ### UUID
 
-An [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) is basically a random number of almost 128 bit (some bits are reserved) big enough so the probability of two values are being created equal is *extremely* low (under some conditions and for any practical case they are *guaranteed unique*). Unfortunately the same randomness that makes them unique behave very inefficiently with the way most databases organize their indexes, the B-Tree, leading to horrible performances. To overcome this pitfall a new type of UUID has been created, the **sequential UUID**, that are generated as an increasing sequence of 128 bit numbers. Sequential UUIDs work well with database indexes but make UUID predictable once one element of the sequence is known. 
+An [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) is basically a random number of almost 128 bit (some bits are reserved) big enough so the probability of two values being created equal is *extremely* low. Unfortunately the same randomness that makes them unique behave very inefficiently with the way most databases organize their indexes, the B-Tree, leading to horrible performances. To overcome this pitfall (and the fact that *very small probability* doesn't mean *zero*) a new type of UUID has been created, the **sequential UUID**, that are generated using a *node-id* and the *timestamp* as a monotonic sequence of 128 bit numbers. Sequential UUIDs work well with database indexes but make UUID *predictable* once one element of the sequence is known. This might lead to data leakage when exposed (i.e. in a public accessible API).
 
-In case having a unique non guessable ID was a requirement **sequential UUIDs can be encrypted**: that is the purpose of this package.
+In case having a unique non guessable ID is a requirement **sequential numerical values can be encrypted**: that is the purpose of this package.
 
 ### TSID
 
-[TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID with a bit more predictability (less random bits available). Because the 64 bit TSID can be encoded in a single long value and is generated in sequence (again to fix the index problem) there is a **long encryptor** available in this package in case it needs to be scrambled. Note that even if the TSID is effectively a long value it doesn't fit into the [maximum number that javascript can accept as integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) so it must be exported as string. The project doesn't refer directly to TSID for generality (they can be treated effectively as long).
+[TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID with some constraints due to it having far less bits available. TSID can be encoded in a single long value and is generated in node and time dependent sequences (again to fix the index problem) so for the point of view of an application it's just like any other ID (just not starting from 0). Note that a TSID encoded long doesn't fit into the [maximum number that javascript can accept as integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) and must be exported as a string. The project doesn't refer directly to TSID for generality (because they are effectively just longs) but offers plenty of ways to work with long identifiers.
 
-## Exporting the default Long ID as a UUID
+## Exporting a Long ID as a UUID
 
-Because the encryptor works with long values it is perfectly legit to encrypt just a default sequential long ID to make the next sequence value hard to guess (and it would work at the cost of having to export them as string). 
+It is perfectly legit to encrypt exported sequential long ID to make the next sequence value hard to guess (and it would work at the cost of having to export them as strings). 
 
-It is also possible to create a `UUID` combining the long `id` with a fixed `nodeId` for each different node (and maybe with a sort of `fieldIndex` value if it is important to have different UUIDs for the same values of two different entities).
+It is also possible, and supported, to create a `UUID` combining the long ID with a fixed `nodeId` for each different node (and maybe with a `fieldId` value if it is important to have different UUIDs for the same value of two different entities). This is useful to adapt an application not designed to work in a distributed environment.
 
 ## Encryption
 
-The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for TSID (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with the [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). ECB mode is discouraged for encrypting multi blocks messages but it's perfectly adequate if the data to encrypt matches the size of one single cipher block.
+The proposed encryption algorithms are [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) for long (64 bit) and [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) for UUID (128 bit) used with the [ECB mode](https://www.highgo.ca/2019/08/08/the-difference-in-five-modes-in-the-aes-encryption-algorithm). ECB mode is discouraged for encrypting multi blocks messages but it's perfectly adequate if the data to encrypt matches the size of one single cipher block.
 
 ## Cache
 
-Cached version of the encryptors is also provided to improve performances. It uses weak references so that cached memory could be reclaimed by the GC.
+All operations of encryption, decryption, serialization and deserialization are [memoized](https://en.wikipedia.org/wiki/Memoization) (cached) to improve efficiency and speed. The concurrent cache uses weak references so that cached memory could be reclaimed by the GC.
 
-## Jackson serialized/ deserializer
+## Jackson serialization
 
-The ID encryption should happen at the **API boundaries** and the serialization of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them. An added benefit is that all the annotated indexes will be automatically translated back and forth (and long will be converted to string using the Crockford encoding as well to overcome the Javascript max integer number limitation). The project provides serialization and deserialization helper for both long and UUID when used as single fields, into lists or as key in a map. There are annotations provided as a shortcut as well.
+The ID encryption should happen at the **API boundaries** and the *serialization* of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them (away from the service logic layer that should know nothing about it). An added benefit is that all the annotated indexes will be automatically translated back and forth (and longs will be converted into strings as needed). The project provides serialization and deserialization helpers for both longs and UUIDs when used as single fields, into lists or as keys in a map. There is also a specific annotation to transform a long ID into an UUID. This will require to add an optional `nodeId` in the factory and an optional `fieldId` in the annotation to distinguish the UUID values of the same ID on different entities where this might be needed (so a *Client* with ID=2 will not have the same UUID of an *Invoice* with ID=2 which might be problematic for security reasons).
+
+This is an example of a class to serialize with annotate fields, it should be quite self-explanatory:
 
 ```java
 public static class Bean {
@@ -88,51 +90,21 @@ public static class Bean {
 } 
 ```
 
-Of course ID parameters passed on the URL should be converted manually.
+Of course ID **parameters passed on the URL** should be converted manually.
 
 ```java
 @GetMapping("/invoices/{customerId}")
-public List<BigDecimal> getExpenses(@PathVariable String customerId) {
-    UUID encryptedUserId = UUID.fromString(customerId);
-    UUID userId = EncryptorsHolder.getUuidEncryptor().decrypt(encryptedUserId);
-    List<BigDecimal> invoices = accountinService.getExpensesOfCustomer(userId);
-    return invoices;
+public List<Invoice> getInvoices(@PathVariable String customerId) {
+    UUID userId = EncryptorsHolder.decryptUuid(customerId);
+    return accountinService.getInvoicesOfCustomer(userId);
 }
 ```
 
-Don;t forget to init the `EncryptorsHolder` with a password:
+Don't forget to **initialize** the `EncryptorsHolder`: there are several init methods available with different options.
 
 ```java
 EncryptorsHolder.initEncryptorsWithPassword("abracadabra");
 ```
-
-Unfortunately using a static factory was the only way to cope with the fact that de/serializers object are created by Jackson directly and cannot be initialized with a password (any suggestions?).
-
-## Operation flows
-
-The following procedures apply to both UUID and TSID.
-
-The flow of **saving** data with its assigned UUID is:
-
-1. The sequential UUID is created, added as primary key and saved along with the data it refers to
-
-2. The sequential UUID is encrypted to avoid the guessing sequence attack
-
-3. The encrypted UUID is then exported as string (it's faster and easier to encrypt the original data rather than its string representation - they have the same entropy)
-
-4. The client saves the returned string for further references
-
-The flow of **getting** the data is:
-
-1. The client queries the system with the received reference string
-
-2. The system transforms the string into an UUID (the encrypted one)
-
-3. The encrypted UUID is decrypted into the actual UUID
-
-4. The decrypted sequential UUID is searched on the database and the data is returned to the client
-
-Every reference of the UUID must be encrypted before being sent and exported as string (i.e. when listing) so it could be useful to reserve a volatile (non persistable and definitely non indexed) field in the data for the string value representation of the encrypted UUID to be returned to clients (hint: use [Jackson](https://github.com/FasterXML/jackson) annotation to automate this).
 
 ## References
 

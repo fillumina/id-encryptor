@@ -51,15 +51,15 @@ public class EncryptorsHolder {
             });
         }
 
-        public String encryptLongAsUUID(long fieldValue, Long id) {
+        public String encryptLongAsUuid(long fieldId, Long id) {
             if (id == null) {
                 return null;
             }
-            UUID uuid = new UUID(uuidMostSignificantLong | fieldValue, id);
+            UUID uuid = new UUID(uuidMostSignificantLong | fieldId, id);
             return encryptUuid(uuid);
         }
 
-        public Long decryptLongAsUUID(String value) {
+        public Long decryptLongAsUuid(String value) {
             UUID uuid = decryptUuid(value);
             return uuid.getLeastSignificantBits();
         }
@@ -84,20 +84,22 @@ public class EncryptorsHolder {
         return holder.decryptUuid(value);
     }
 
-    public static String encryptLongAsUuid(long fieldValue, Long id) {
-        return holder.encryptLongAsUUID(fieldValue, id);
+    public static String encryptLongAsUuid(long fieldId, Long id) {
+        return holder.encryptLongAsUuid(fieldId, id);
     }
 
-    public static Long decryptLongAsUUID(String value) {
-        return holder.decryptLongAsUUID(value);
+    public static Long decryptLongAsUuid(String value) {
+        return holder.decryptLongAsUuid(value);
     }
 
-    public static void initEncryptorsWithPassword(String password) {
-        initEncryptorsWithPasswordAndNodeId(password, new SecureRandom().nextInt());
+    /** @return true if no holder was previously created. */
+    public static boolean initEncryptorsWithPassword(String password) {
+        return initEncryptorsWithPasswordAndNodeId(password, new SecureRandom().nextInt());
     }
 
-    public static void initEncryptorsWithPasswordAndNodeId(String password, int nodeId) {
-        builder()
+    /** @return true if no holder was previously created. */
+    public static boolean initEncryptorsWithPasswordAndNodeId(String password, int nodeId) {
+        return builder()
             .longEncryptor(new LongEncryptor(password))
             .uuidEncryptor(new UuidEncryptor(password))
             .cache(new ConcurrentCache<Object,Object>())
@@ -106,8 +108,8 @@ public class EncryptorsHolder {
     }
 
     /** No encryptions will be performed. */
-    public static void initEncryptorsAsPassThrough() {
-        builder().build();
+    public static boolean initEncryptorsAsPassThrough() {
+        return builder().build();
     }
 
     public static class Builder {
@@ -137,8 +139,11 @@ public class EncryptorsHolder {
             return this;
         }
 
-        public void build() {
+        /** @return true if no holder was previously created. */
+        public boolean build() {
+            boolean notExisting = holder == null;
             holder = new Holder(longEncryptor, uuidEncryptor, cache, uuidMostSignificantLong);
+            return notExisting;
         }
     }
 
