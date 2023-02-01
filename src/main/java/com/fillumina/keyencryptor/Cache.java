@@ -18,7 +18,7 @@ public interface Cache<K, V> {
         }
     };
 
-    public static <K,V> Cache<K,V> getNull() {
+    public static <K,V> Cache<K,V> getNoCache() {
         return (Cache<K, V>) NULL;
     }
 

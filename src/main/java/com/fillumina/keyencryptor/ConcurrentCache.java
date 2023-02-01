@@ -10,15 +10,23 @@ import java.util.function.Supplier;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-class ConcurrentCache<K,V> implements Cache<K, V> {
+public class ConcurrentCache<K,V> implements Cache<K, V> {
 
     private final int mask;
     private final Map<K,V>[] mapArray;
 
+    /**
+     * Creates a concurrent {@link WeakHashMap} with a concurrency level set to 32.
+     * @param concurrency
+     */
     public ConcurrentCache() {
         this(32);
     }
 
+    /**
+     * Creates a concurrent {@link WeakHashMap}.
+     * @param concurrency
+     */
     public ConcurrentCache(int concurrency) {
         this(concurrency, WeakHashMap::new);
     }
@@ -35,8 +43,7 @@ class ConcurrentCache<K,V> implements Cache<K, V> {
         this.mapArray = new Map[capacity];
         for (int i=0; i<capacity; i++) {
             Map<K,V> nodeMap = supplier.get();
-            Map<K,V> synchronizedMap = Collections.synchronizedMap(nodeMap);
-            this.mapArray[i] = synchronizedMap;
+            this.mapArray[i] = nodeMap;
         }
     }
 
@@ -47,12 +54,18 @@ class ConcurrentCache<K,V> implements Cache<K, V> {
 
     @Override
     public V get(K key) {
-        return selectMap(key).get(key);
+        final Map<K, V> map = selectMap(key);
+        synchronized(map) {
+            return map.get(key);
+        }
     }
 
     @Override
     public V put(K key, V value) {
-        return selectMap(key).put(key,value);
+        final Map<K, V> map = selectMap(key);
+        synchronized(map) {
+            return map.put(key,value);
+        }
     }
 
     /**

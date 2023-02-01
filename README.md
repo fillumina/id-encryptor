@@ -16,17 +16,11 @@ In case having a unique non guessable ID was a requirement **sequential UUIDs ca
 
 [TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID with a bit more predictability (less random bits available). Because the 64 bit TSID can be encoded in a single long value and is generated in sequence (again to fix the index problem) there is a **long encryptor** available in this package in case it needs to be scrambled. Note that even if the TSID is effectively a long value it doesn't fit into the [maximum number that javascript can accept as integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) so it must be exported as string. The project doesn't refer directly to TSID for generality (they can be treated effectively as long).
 
-## Encrypting the default Long ID
+## Exporting the default Long ID as a UUID
 
-Because the encryptor works with long values it is perfectly legit to encrypt just a default sequential long ID to make the next sequence value hard to guess (and it would work). The same can be done using the `UUID` constructor `new UUID(nodeId, id)`, with the long `id` as a parameter and the `nodeId` fixed for each different node, and then encrypt it to the same effect if needed.
+Because the encryptor works with long values it is perfectly legit to encrypt just a default sequential long ID to make the next sequence value hard to guess (and it would work at the cost of having to export them as string). 
 
-But if you plan to use the first approach as a sort of universal identifier generator surrogate consider that there isn't enough entropy in 64 bits to be reasonably sure that two different generated values (with different passwords, obviously) would not be equal: using the [formula](https://www.wolframalpha.com/input?i2d=true&i=1%E2%88%92%5C%2840%29Power%5Be%2C%5C%2840%29-Divide%5B%5C%2840%29%5C%2840%29n%E2%88%921%5C%2841%29n%5C%2841%29%2C%5C%2840%292*Power%5B2%2C64%5D%5C%2841%29%5D%5C%2841%29%5D%5C%2841%29%5C%2844%29+n%3DPower%5B10%2C10%5D) $1−e^-((n−1)*n)/2N)$ the *theoretical* probability of having 2 equal IDs is about **93%** in case of [10 billion](https://www.wolframalpha.com/input?i=1+-+1%2Fe%5E%2897656249990234375%2F36028797018963968%29&assumption=%22ClashPrefs%22+-%3E+%7B%22Math%22%7D) *random* values (see [What is the probability of any 2 numbers being equal in a random list of n numbers of m digits? - Quora](https://www.quora.com/What-is-the-probability-of-any-2-numbers-being-equal-in-a-random-list-of-n-numbers-of-m-digits) also [javascript - Probability of getting the same value using Math.random - Stack Overflow](https://stackoverflow.com/questions/28199100/probability-of-getting-the-same-value-using-math-random).
-
-The second approach (converting the long ID into an UUID) could actually work because there is much more entropy available in 128 bits and also the `node-id` would help. That means it is possible to use a standard Long ID internally and expose a randomized UUID externally (and using the same password on all systems you could get the *node-id* back too). This might be useful  in some particular cases or as a workaround for systems not designed to be distributed since the beginning but consider that proper UUID generators take actions to *ensure* unicity not just by relaying on a *very small* collision probability and should be preferred.
-
-### Note about encrypted values collisions
-
-In the previous chapter it is discussed the probability of having 2 equal values between a set of random generated values. Note that this doesn't apply to encryption that is guaranteed to always produce a different value on a different input and because the input is an incremental sequence of number there aren't any possibility of having duplicated results.
+It is also possible to create a `UUID` combining the long `id` with a fixed `nodeId` for each different node (and maybe with a sort of `fieldIndex` value if it is important to have different UUIDs for the same values of two different entities).
 
 ## Encryption
 
@@ -42,18 +36,38 @@ The ID encryption should happen at the **API boundaries** and the serialization 
 
 ```java
 public static class Bean {
+    // serialized as an encrypted string
     @Encryptable
-    Long encryptableLongValue;
+    Long encryptableLongValue = 1;
 
-    Long nonEncryptableLongValue;
+    // serialized as an encrypted UUID with fieldId = 123
+    @EncryptableLongAsUuid(123)
+    Long encryptableLongAsUUIDValue1 = 1;
 
+    // serialized as an encrypted UUID with fieldId = 456
+    // the serialized UUID will be different than the previous one
+    @EncryptableLongAsUuid(456)
+    Long encryptableLongAsUUIDValue2 = 1;
+
+    Long nonEncryptableLongValue = 1;
+
+    // serialized as an encrypted string
     @EncryptableCollection
     List<Long> encryptableLongList;
 
+    // serialized as an encrypted UUID with fieldId = 123
+    @EncryptableLongAsUuidCollection(123)
+    List<Long> encryptableLongAsUuidList;
+
     List<Long> nonEncryptableLongList;
 
+    // serialized as an encrypted string
     @EncryptableKey
     Map<Long, String> encryptableLongMap;
+
+    // serialized as an encrypted UUID with fieldId = 123
+    @EncryptableLongAsUuidKey(123)
+    Map<Long, String> encryptableLongAsUuidMap;
 
     Map<Long, String> nonEncryptableLongMap;
 

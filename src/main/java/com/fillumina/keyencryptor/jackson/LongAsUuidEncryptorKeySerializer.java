@@ -36,7 +36,7 @@ public class LongAsUuidEncryptorKeySerializer extends StdSerializer<Long>
     @Override
     public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider)
       throws IOException, JsonProcessingException {
-        jgen.writeFieldName(EncryptorsHolder.encryptLongAsUUID(fieldIndex, (long)value));
+        jgen.writeFieldName(EncryptorsHolder.encryptLongAsUuid(fieldIndex, (long)value));
     }
 
     @Override

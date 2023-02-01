@@ -6,7 +6,16 @@ package com.fillumina.keyencryptor;
  */
 public interface Encryptor<T> {
 
-    T decrypt(T l);
+    public static final Encryptor<?> NULL = new Encryptor<Object>() {
+        @Override public Object decrypt(Object t) { return t; }
+        @Override public Object encrypt(Object t) { return t; }
+    };
 
-    T encrypt(T l);
+    public static <T> Encryptor<T> getPassThrough() {
+        return (Encryptor<T>) NULL;
+    }
+
+    T decrypt(T t);
+
+    T encrypt(T t);
 }
