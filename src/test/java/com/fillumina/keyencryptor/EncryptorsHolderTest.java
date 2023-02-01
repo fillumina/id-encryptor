@@ -1,6 +1,6 @@
 package com.fillumina.keyencryptor;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 public class EncryptorsHolderTest {
 
     @Test
-    public void shouldReturnFalseIfAlreadyPresentBuilder() {
+    public void shouldReturnTrueIfInitialized() {
 
         EncryptorsHolder.builder().build();
 
-        assertFalse(EncryptorsHolder.builder().build());
+        assertTrue(EncryptorsHolder.isInitialized());
     }
 
 }
