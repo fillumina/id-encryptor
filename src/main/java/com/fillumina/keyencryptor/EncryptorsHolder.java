@@ -23,10 +23,6 @@ public class EncryptorsHolder {
             this.uuidMostSignificantLong = uuidMostSignificantLong;
         }
 
-//        public String encryptLong(Long value) {
-//            return encryptLong(0, value);
-//        }
-
         public String encryptLong(long seed, Long value) {
             long xor = seed ^ value;
             return (String) cache.getOrCreate(xor, () -> {
@@ -34,10 +30,6 @@ public class EncryptorsHolder {
                 return LongCrockfordConverter.toString(encryptedLong);
             });
         }
-
-//        public Long decryptLong(String value) {
-//            return decryptLong(0, value);
-//        }
 
         public Long decryptLong(long seed, String value) {
             return (Long) cache.getOrCreate(value + seed, () -> {
@@ -77,8 +69,18 @@ public class EncryptorsHolder {
 
     private static Holder holder;
 
+    /** Seed is assumed 0. */
+    public static String encryptLong(Long value) {
+        return holder.encryptLong(0L, value);
+    }
+
     public static String encryptLong(long seed, Long value) {
         return holder.encryptLong(seed, value);
+    }
+
+    /** Seed is assumed 0. */
+    public static Long decryptLong(String value) {
+        return holder.decryptLong(0L, value);
     }
 
     public static Long decryptLong(long seed, String value) {
