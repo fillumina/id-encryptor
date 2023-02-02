@@ -32,7 +32,9 @@ All operations of encryption, decryption, serialization and deserialization are 
 
 ## Jackson serialization
 
-The ID encryption should happen at the **API boundaries** and the *serialization* of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them (away from the service logic layer that should know nothing about it). An added benefit is that all the annotated indexes will be automatically translated back and forth (and longs will be converted into strings as needed). The project provides serialization and deserialization helpers for both longs and UUIDs when used as single fields, into lists or as keys in a map. There is also a specific annotation to transform a long ID into an UUID. This will require to add an optional `nodeId` in the factory and an optional `fieldId` in the annotation to distinguish the UUID values of the same ID on different entities where this might be needed (so a *Client* with ID=2 will not have the same UUID of an *Invoice* with ID=2 which might be problematic for security reasons).
+The ID encryption should happen at the **API boundaries** and the *serialization* of data into [JSON](https://www.json.org/json-en.html) strings is a perfect place to encode them (away from the service layer that should know nothing about it). An added benefit is that all the annotated indexes will be automatically translated back and forth (and longs will be converted into strings as needed). The project provides serialization and deserialization helpers for both longs and UUIDs when used as single fields, into lists or as keys in a map. An optional *seed* parameter is provided in the annotation for encrypting longs (it's ignored for UUIDs) to allow a further scrambling so that equal values will not be encrypted in the same string.
+
+There are annotations (those with `LongAsUuid` in the name) to transform a long ID into an UUID. This will require to add an optional `nodeId` in the factory and an optional `fieldId` in the annotation to distinguish the UUID values of the same ID on different entities where this might be needed (so a *Client* with ID=2 will not have the same UUID of an *Invoice* with ID=2 which might be problematic for security reasons).
 
 This is an example of a class to serialize with annotate fields, it should be quite self-explanatory:
 
@@ -41,6 +43,10 @@ public static class Bean {
     // serialized as an encrypted string
     @Encryptable
     Long encryptableLongValue = 1;
+
+    // uses a seed (2) to encrypt 1 as a different string than the previous
+    @Encryptable(2)
+    Long encryptableLongValue2 = 1;
 
     // serialized as an encrypted UUID with fieldId = 123
     @EncryptableLongAsUuid(123)

@@ -36,10 +36,10 @@ public class JsonSerializerTest {
         @Encryptable
         Long encryptableLongValue = LONG_VALUE_1;
 
-        @Encryptable(2L)
+        @Encryptable(2)
         Long encryptableLongValue2 = LONG_VALUE_1;
 
-        @Encryptable(3L)
+        @Encryptable(3)
         Long encryptableLongValue3 = LONG_VALUE_1;
 
         Long nonEncryptableLongValue = LONG_VALUE_1;
@@ -47,7 +47,7 @@ public class JsonSerializerTest {
         @EncryptableCollection
         List<Long> encryptableLongList = LONG_LIST;
 
-        @EncryptableCollection(2L)
+        @EncryptableCollection(2)
         List<Long> encryptableLongList2 = LONG_LIST;
 
         List<Long> nonEncryptableLongList = LONG_LIST;
@@ -55,7 +55,7 @@ public class JsonSerializerTest {
         @EncryptableKey
         Map<Long, String> encryptableLongMap = LONG_MAP;
 
-        @EncryptableKey(2L)
+        @EncryptableKey(2)
         Map<Long, String> encryptableLongMap2 = LONG_MAP;
 
         Map<Long, String> nonEncryptableLongMap = LONG_MAP;
