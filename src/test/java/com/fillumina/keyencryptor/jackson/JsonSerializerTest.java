@@ -22,7 +22,7 @@ public class JsonSerializerTest {
     private static final String STRING_MAP_VALUE_1 = "xxxx";
     private static final String STRING_MAP_VALUE_2 = "yyyy";
 
-    private static final List<Long> LONG_LIST = List.of(LONG_VALUE_2, LONG_VALUE_2);
+    private static final List<Long> LONG_LIST = List.of(LONG_VALUE_1, LONG_VALUE_2);
     private static final Map<Long, String> LONG_MAP = Map.of(
             LONG_VALUE_1, STRING_MAP_VALUE_1, LONG_VALUE_2, STRING_MAP_VALUE_2);
 
@@ -47,10 +47,16 @@ public class JsonSerializerTest {
         @EncryptableCollection
         List<Long> encryptableLongList = LONG_LIST;
 
+        @EncryptableCollection(2L)
+        List<Long> encryptableLongList2 = LONG_LIST;
+
         List<Long> nonEncryptableLongList = LONG_LIST;
 
         @EncryptableKey
         Map<Long, String> encryptableLongMap = LONG_MAP;
+
+        @EncryptableKey(2L)
+        Map<Long, String> encryptableLongMap2 = LONG_MAP;
 
         Map<Long, String> nonEncryptableLongMap = LONG_MAP;
 
@@ -77,9 +83,11 @@ public class JsonSerializerTest {
         Long nonEncryptableLongValue;
 
         List<String> encryptableLongList;
+        List<String> encryptableLongList2;
         List<Long> nonEncryptableLongList;
 
         Map<String, String> encryptableLongMap;
+        Map<String, String> encryptableLongMap2;
         Map<Long, String> nonEncryptableLongMap;
 
         String encryptableUuidValue;
@@ -107,7 +115,7 @@ public class JsonSerializerTest {
         this.encryptedBean = objectMapper.readValue(serialized, SerializedBean.class);
         this.decryptedBean = objectMapper.readValue(serialized, Bean.class);
 
-        //System.out.println("SERIALIZED: " + serialized);
+        // System.out.println("SERIALIZED: " + serialized);
     }
 
     @Test
@@ -140,6 +148,14 @@ public class JsonSerializerTest {
     }
 
     @Test
+    public void shouldSerializableLongListWithDifferentSeeds() throws Exception {
+        assertNotEquals(encryptedBean.encryptableLongList, encryptedBean.encryptableLongList2);
+        assertNotEquals(originalBean.encryptableLongList2, encryptedBean.encryptableLongList2);
+
+        assertEquals(originalBean.encryptableLongList2, decryptedBean.encryptableLongList2);
+    }
+
+    @Test
     public void shouldSerializeLongMapKeys() throws Exception {
         assertNotEquals(originalBean.encryptableLongMap, encryptedBean.encryptableLongMap);
         assertEquals(originalBean.nonEncryptableLongMap, encryptedBean.nonEncryptableLongMap);
@@ -148,6 +164,13 @@ public class JsonSerializerTest {
         assertEquals(originalBean.nonEncryptableLongMap, decryptedBean.nonEncryptableLongMap);
     }
 
+    @Test
+    public void shouldSerializeLongMapKeysWithDifferentSeeds() {
+        assertNotEquals(encryptedBean.encryptableLongMap, encryptedBean.encryptableLongMap2);
+        assertNotEquals(originalBean.encryptableLongMap2, encryptedBean.encryptableLongMap2);
+
+        assertEquals(originalBean.encryptableLongMap2, decryptedBean.encryptableLongMap2);
+    }
 
     @Test
     public void shouldSerializeSingleUUIDValue() throws Exception {

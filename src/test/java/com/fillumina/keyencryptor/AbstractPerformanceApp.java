@@ -8,6 +8,7 @@ public abstract class AbstractPerformanceApp<T> {
 
     abstract T next(int k);
 
+    @SuppressWarnings("unchecked")
     boolean test(String title, final int iterations, int subIterations, final Encryptor<T> ne) {
         T[] array = (T[]) new Object[subIterations];
         for (int k=0; k<subIterations; k++) {
