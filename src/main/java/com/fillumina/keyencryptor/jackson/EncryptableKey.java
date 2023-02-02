@@ -16,4 +16,12 @@ import java.lang.annotation.RetentionPolicy;
 @JsonDeserialize(keyUsing = EncryptorKeyDeserializer.class)
 public @interface EncryptableKey {
 
+    /**
+     * Defines a seed to use to scramble sequences from different fields so they
+     * will not have the same encrypted string. It does not apply to UUIDs that
+     * should be already generated unique by a shared generator and are immune
+     * to this problem.
+     */
+    public long value() default 0;
+
 }

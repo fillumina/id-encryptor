@@ -1,6 +1,6 @@
 # ID Encryptor
 
-Encrypts long values (64 bit) and UUIDs (128 bit).
+Serializes long IDs and UUIDs in a scrambled form to avoid data leakage by guessing sequence attack.
 
 ## Scenario
 

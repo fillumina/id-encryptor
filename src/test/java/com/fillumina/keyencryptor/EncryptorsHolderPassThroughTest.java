@@ -42,17 +42,25 @@ public class EncryptorsHolderPassThroughTest {
                 EncryptorsHolder.encryptLongAsUuid(2, 1L));
     }
 
-
     @Test
     public void shouldCreateLong() {
         assertEquals("0000000000000",
-                EncryptorsHolder.encryptLong(0L));
+                EncryptorsHolder.encryptLong(0, 0L));
         assertEquals("0000000000001",
-                EncryptorsHolder.encryptLong(1L));
+                EncryptorsHolder.encryptLong(0, 1L));
         assertEquals("0000000000002",
-                EncryptorsHolder.encryptLong(2L));
+                EncryptorsHolder.encryptLong(0, 2L));
     }
 
+    @Test
+    public void shouldCreateLongWithSeed() {
+        assertEquals("0000000000000",
+                EncryptorsHolder.encryptLong(0L, 0L));
+        assertEquals("0000000000001",
+                EncryptorsHolder.encryptLong(1L, 0L));
+        assertEquals("0000000000002",
+                EncryptorsHolder.encryptLong(2L, 0L));
+    }
 
     @Test
     public void shouldCreateUuid() {

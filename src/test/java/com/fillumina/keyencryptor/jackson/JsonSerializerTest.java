@@ -36,6 +36,12 @@ public class JsonSerializerTest {
         @Encryptable
         Long encryptableLongValue = LONG_VALUE_1;
 
+        @Encryptable(2L)
+        Long encryptableLongValue2 = LONG_VALUE_1;
+
+        @Encryptable(3L)
+        Long encryptableLongValue3 = LONG_VALUE_1;
+
         Long nonEncryptableLongValue = LONG_VALUE_1;
 
         @EncryptableCollection
@@ -66,6 +72,8 @@ public class JsonSerializerTest {
 
     public static class SerializedBean {
         String encryptableLongValue;
+        String encryptableLongValue2;
+        String encryptableLongValue3;
         Long nonEncryptableLongValue;
 
         List<String> encryptableLongList;
@@ -109,6 +117,17 @@ public class JsonSerializerTest {
 
         assertEquals(originalBean.encryptableLongValue, decryptedBean.encryptableLongValue);
         assertEquals(originalBean.nonEncryptableLongValue, decryptedBean.nonEncryptableLongValue);
+    }
+
+    @Test
+    public void shouldSerializedSingleLongValueWithDifferentSeeds() throws Exception {
+        assertNotEquals(encryptedBean.encryptableLongValue, encryptedBean.encryptableLongValue2);
+        assertNotEquals(encryptedBean.encryptableLongValue, encryptedBean.encryptableLongValue3);
+        assertNotEquals(encryptedBean.encryptableLongValue2, encryptedBean.encryptableLongValue3);
+
+        assertEquals(originalBean.encryptableLongValue, decryptedBean.encryptableLongValue);
+        assertEquals(originalBean.encryptableLongValue2, decryptedBean.encryptableLongValue2);
+        assertEquals(originalBean.encryptableLongValue3, decryptedBean.encryptableLongValue3);
     }
 
     @Test
