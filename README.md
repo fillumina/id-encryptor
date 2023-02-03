@@ -1,6 +1,6 @@
 # ID Encryptor
 
-Serializes long and UUIDs in a scrambled form to avoid data leakage by guessing sequence attack.
+Encrypts and optionally serializes to and from JSON (using [Jackson](https://github.com/FasterXML/jackson) annotations) long and UUID fields in a scrambled form to avoid data leakage. 
 
 ## Scenario
 
