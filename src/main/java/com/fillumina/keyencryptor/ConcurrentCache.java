@@ -17,7 +17,6 @@ public class ConcurrentCache<K,V> implements Cache<K, V> {
 
     /**
      * Creates a concurrent {@link WeakHashMap} with a concurrency level set to 32.
-     * @param concurrency
      */
     public ConcurrentCache() {
         this(32);
