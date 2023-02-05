@@ -33,18 +33,24 @@ public class JsonSerializerTest {
             UUID_VALUE_1, STRING_MAP_VALUE_1, UUID_VALUE_2, STRING_MAP_VALUE_2);
 
     public static class Bean {
+        // serialized as an encrypted string
         @Encryptable(type = ExportType.String)
         Long encryptableLongValue = LONG_VALUE_1;
 
+        // uses a nodeId=2 to encrypt to a different string than the previous
         @Encryptable(type = ExportType.String, nodeId = 2)
         Long encryptableLongValue2 = LONG_VALUE_1;
 
+        // uses a nodeId=3 to encrypt to a different string than the previous
         @Encryptable(type = ExportType.String, nodeId = 3)
         Long encryptableLongValue3 = LONG_VALUE_1;
 
+        // encrypts to a long number of 52 bit max usable by javascript
         @Encryptable(type = ExportType.Long52Bit)
         Long encryptableLong52Value = LONG_VALUE_1;
 
+        // encrypts to a UUID created from the long id
+        // (optionally you can set a nodeId)
         @Encryptable(type = ExportType.LongAsUuid)
         Long encryptableLongAsUuidValue = LONG_VALUE_1;
 
