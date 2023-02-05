@@ -60,59 +60,71 @@ This is an example of a class to serialize with annotate fields, it should be qu
 ```java
 public static class Bean {
     // serialized as an encrypted string
-    @Encryptable
-    Long encryptableLongValue = 1;
+    @Encryptable(type = ExportType.String)
+    Long encryptableLongValue = LONG_VALUE_1;
 
-    // uses a seed (2) to encrypt 1 as a different string than the previous
-    @Encryptable(2)
-    Long encryptableLongValue2 = 1;
+    // uses a nodeId=2 to encrypt to a different string than the previous
+    @Encryptable(type = ExportType.String, nodeId = 2)
+    Long encryptableLongValue2 = LONG_VALUE_1;
 
-    // serialized as an encrypted UUID with fieldId = 123
-    @EncryptableLongAsUuid(123)
-    Long encryptableLongAsUUIDValue1 = 1;
+    // uses a nodeId=3 to encrypt to a different string than the previous
+    @Encryptable(type = ExportType.String, nodeId = 3)
+    Long encryptableLongValue3 = LONG_VALUE_1;
 
-    // serialized as an encrypted UUID with fieldId = 456
-    // the serialized UUID will be different than the previous one
-    @EncryptableLongAsUuid(456)
-    Long encryptableLongAsUUIDValue2 = 1;
+    // encrypts to a long number of 52 bit usable by javascript
+    @Encryptable(type = ExportType.Long52Bit)
+    Long encryptableLong52Value = LONG_VALUE_1;
 
-    Long nonEncryptableLongValue = 1;
+    // encrypts to a UUID created from the long id 
+    // (optionally you can set a nodeId)
+    @Encryptable(type = ExportType.LongAsUuid)
+    Long encryptableLongAsUuidValue = LONG_VALUE_1;
 
-    // serialized as an encrypted string
-    @EncryptableCollection
-    List<Long> encryptableLongList;
+    Long nonEncryptableLongValue = LONG_VALUE_1;
 
-    // serialized as an encrypted UUID with fieldId = 123
-    @EncryptableLongAsUuidCollection(123)
-    List<Long> encryptableLongAsUuidList;
+    @EncryptableCollection(type = ExportType.String)
+    List<Long> encryptableLongList = LONG_LIST;
 
-    List<Long> nonEncryptableLongList;
+    @EncryptableCollection(type = ExportType.String, nodeId = 2)
+    List<Long> encryptableLongList2 = LONG_LIST;
 
-    // serialized as an encrypted string
-    @EncryptableKey
-    Map<Long, String> encryptableLongMap;
+    @EncryptableCollection(type = ExportType.Long52Bit)
+    List<Long> encryptableLong52List = LONG_LIST;
 
-    // serialized as an encrypted UUID with fieldId = 123
-    @EncryptableLongAsUuidKey(123)
-    Map<Long, String> encryptableLongAsUuidMap;
+    @EncryptableCollection(type = ExportType.Long52Bit)
+    List<Long> encryptableLongAsUuidList = LONG_LIST;
 
-    Map<Long, String> nonEncryptableLongMap;
+    List<Long> nonEncryptableLongList = LONG_LIST;
 
-    @Encryptable
-    UUID encryptableUuidValue;
+    @EncryptableKey(type = ExportType.String)
+    Map<Long, String> encryptableLongMap = LONG_MAP;
 
-    UUID nonEncryptableUuidValue;
+    @EncryptableKey(type = ExportType.String, nodeId = 2)
+    Map<Long, String> encryptableLongMap2 = LONG_MAP;
 
-    @EncryptableCollection
-    List<UUID> encryptableUuidList;
+    @EncryptableKey(type = ExportType.Long52Bit)
+    Map<Long, String> encryptableLong52Map = LONG_MAP;
 
-    List<UUID> nonEncryptableUuidList;
+    @EncryptableKey(type = ExportType.LongAsUuid)
+    Map<Long, String> encryptableLongAsUuidMap = LONG_MAP;
 
-    @EncryptableKey
-    Map<UUID, String> encryptableUuidMap;
+    Map<Long, String> nonEncryptableLongMap = LONG_MAP;
 
-    Map<UUID, String> nonEncryptableUuidMap;
-} 
+    @Encryptable(type = ExportType.Uuid)
+    UUID encryptableUuidValue = UUID_VALUE_1;
+
+    UUID nonEncryptableUuidValue = UUID_VALUE_2;
+
+    @EncryptableCollection(type = ExportType.Uuid)
+    List<UUID> encryptableUuidList = UUID_LIST;
+
+    List<UUID> nonEncryptableUuidList = UUID_LIST;
+
+    @EncryptableKey(type = ExportType.Uuid)
+    Map<UUID, String> encryptableUuidMap = UUID_MAP;
+
+    Map<UUID, String> nonEncryptableUuidMap = UUID_MAP;
+}
 ```
 
 Of course ID **parameters passed on the URL** should be converted manually.
