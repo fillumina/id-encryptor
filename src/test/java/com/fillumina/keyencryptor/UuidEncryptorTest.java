@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 public class UuidEncryptorTest {
 
     public static void main(String[] args) {
+        System.out.println("UUID: " + new UUID(1L, 2L).toString());
+
         UUID encrypted = new UuidEncryptor("123456789xyz").encrypt(UUID.randomUUID());
         System.out.println("UUID: " + encrypted.toString());
         System.out.println("version: " + encrypted.version());

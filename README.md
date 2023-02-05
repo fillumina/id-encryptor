@@ -1,28 +1,45 @@
 # ID Encryptor
 
-Encrypts and optionally serializes to and from JSON (using [Jackson](https://github.com/FasterXML/jackson) annotations) long and UUID fields in a scrambled form to avoid data leakage. 
+Manages, encrypts and optionally serializes to and from JSON (using [Jackson](https://github.com/FasterXML/jackson) annotations) long and UUID fields.
 
-## Scenario
+### Sequential ID
 
-A commonly used, and very practical, *surrogate* identifier is a sequential number called ID generally assigned by the database itself. This is very efficient on a single system but suffers the problem of not being unique in a distributed environment. One solution is to use very large random numbers (with a very small collision probability) or to create them in a way that they are unique among the distributed system (in most cases the unicity constraint can be restricted into the context of the distributed application or of a specific entity in the application).
+A commonly used, and very practical, *surrogate* identifier is a sequential number called *ID* generally assigned by the database itself. This is very efficient on a single system but suffers the problem of not being unique in a distributed environment. One solution is to use very large random numbers (with a very small collision probability) or to create the identifiers in a way that they are unique among the distributed system (in most cases the unicity constraint can be restricted to the context of the distributed application or to a specific entity in the application).
 
 ### UUID
 
-An [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) is basically a random number of almost 128 bit (some bits are reserved) big enough so the probability of two values being created equal is *extremely* low. Unfortunately the same randomness that makes them unique behave very inefficiently with the way most databases organize their indexes, the B-Tree, leading to horrible performances. To overcome this pitfall a new type of UUID has been proposed, the **sequential UUID**, that is generated using a *node-id* and a *timestamp* in a monotonic sequence of 128 bit numbers. Sequential UUIDs work well with database indexes but pack into them some info that could leak unwanted internal details. Depending on the implementation it could be even possible to guess the next sequence value making UUID somewhat *predictable*.
-
-To preserve privacy and avoid leaking information **sequential numerical values can be encrypted**: that is the purpose of this package.
+An [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), Universally Unique IDentifier,  is basically a random number of almost 128 bit (some bits are reserved) big enough so the probability of two values being created equal is *extremely* low (version 4). Unfortunately the same randomness that makes them unique behave very inefficiently with the way most databases organize their indexes, the B-Tree, leading to horrible performances (in both speed and space). To overcome this pitfall the [random version 4 UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)) should be substituted by **sequential UUID** versions (such as v.1,5,6,7), which generates their values in a monotonic sequence of 128 bit numbers. Sequential UUIDs work well with database indexes but might embed some info that could leak unwanted internal details (i.e. *node-id* and *creation time*). An UUID is also double the size of a long ID which can impact the performances and the database size by being replied on indexes, caches, foreign keys, views etc.
 
 ### TSID
 
-[TSID](https://github.com/f4b6a3/tsid-creator) is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID with some constraints due to it having far less bits available. TSID can be encoded in a single long value and can be generated in a *node* and *time* dependent sequences (again to fix the index problem) but unlike sequential UUID thes sequences are much more guessable. Being encoded as long, for the point of view of an application, it's just like any other ID (just not starting from 0) and this is a distinctive advantage of TSID over UUID. A TSID encoded long doesn't fit into the [maximum number that javascript can accept as integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) and must be exported as a string if consumed by Javascript.
+[TSID](https://github.com/f4b6a3/tsid-creator), Time Sorted ID, is a smaller version of UUID that is only 64 bits long. It has the same features of a full blown UUID with some constraints due to it having far less bits available. TSID can be encoded in a single long value and can be generated in a *node* and *time* dependent sequences (again to fix the indexing problem). Being encoded as long, for the point of view of an application, a TSID is just like any othe ID (just not starting from 0 and not auto-generated by the database). Note that a TSID encoded long doesn't fit into the [maximum number that javascript can accept as integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) and must be exported as a string if consumed by Javascript (so it *should*). Having much less real estate than UUID a TSID sequences can be guessed much more easily and that could be exploited by an attacker (it also embeds *node id* and *creation time*).
 
-The project doesn't refer directly to TSID for generality (because they are effectively just longs) but offers plenty of ways to encrypt and serialize long values.
+TSID security can be improved by **encryption** to deny an attacker access to both embedded info and sequential values. Encryption should happen at the *boundaries* of the application (i.e. REST API) because saving encrypted value on the database would trigger the indexing problem again (an encrypted value is basically random).
 
-## Exporting a Long as a UUID
+This project doesn't refer directly to TSID for generality (because they are effectively just longs) but offers plenty of ways to encrypt and serialize long values.
 
-It is perfectly legit to export a sequential long ID encrypted to make the next sequence value hard to guess (and it would work at the cost of having to export them as strings). 
+### Encrypting Long ID
 
-It is also possible, and supported, to create an `UUID` combining the long ID with a fixed `nodeId` for each different node (and optionally a `fieldId` if it is important to have different UUIDs for the same value of two different entities). This is useful to adapt an application not designed to work in a distributed environment (i.e. to export data to a centralized application by several clients). It also makes an interesting option to keep the best performances from the local db while still be able to communicate in a distributed environment.
+If we are all right with sequential long IDs internally but are worry of exporting them in the API we can encrypt them (optionally embedding the *node-id*) to make the next sequence value hard to guess. We have the option of using the full 64 bit value, necessarily exported as string, or a 52 bit version compatible with javascript clients and so exported as a numeric value. Note that encrypted values (both strings and numbers) are scrambled in a way that ordering by ID makes no sense anymore. 
+
+### Exporting Long ID as a UUID
+
+It is also possible, and supported, to create a `UUID` combining the long ID with a fixed `nodeId` long for each different node (and optionally a `fieldId` if it is important to have *different* UUIDs for the same ID on two different entities). Because the resulted UUID would not be robust against guessing attack it should be encrypted (there are methods provided). 
+Converting long to UUID is useful to adapt an application not designed to work in a distributed environment (i.e. to export data to a centralized application by several clients). It also makes an interesting option to keep the best performances from the local db while still be able to communicate in a distributed environment.
+
+### Comparison
+
+Choosing the right type of identifier creates a tension between a lot of different trade-offs but it helps noticing that not all data needs to be treated in the same way and there could be different identifiers in the same application.
+
+Using UUIDs is expensive in terms of efficiency and complexity but might be the right choice for data that needs to be referred by many different systems. A TSID encoded long can be a valid, and more efficient, substitute for almost all cases except when the universality constraint is to be intended in its wider sense (twitter uses an identifier similar to TSID for its tweets and so many others).  
+
+Using an universal identifier would make merging, data migration and database management in general much easier (your DBA would be grateful). The TSID is small and fast but if you really need a full UUID always prefer a sequential type and not a version 4 (random) or versions 1,2, 3 and 5 (see [Universally unique identifier - Wikipedia](https://en.wikipedia.org/wiki/Universally_unique_identifier#As_database_keys)).
+
+The sequential long ID is by far the most used, efficient and easier alternative. It can be encrypted in various ways to protect against the guessing value attack and can be exported as either a string or a number of 52 bits. For single applications is the obvious choice but it doesn't work very well for objects that need to be referred in a distributed system (the various tricks about adding the node-id and exporting them as some form of universal identifiers work but the real problem stays in the scattering of data in the database that rapidly become unmanageable). There are applications that can benefit from these techniques though.
+
+Both sequential long ID and TSID encoded long can be exported as encrypted string or encrypted UUID if needed.
+
+In conclusion It seems that TSID really represents the better option for most cases at least in distributed systems. Its only problems are that it's not universally unique, only in the context of the application, and that, if too few bits are allocated to the counter, it is much more guessable than a full blown UUID (but it can be, *should* be, encrypted).
 
 ## Encryption
 

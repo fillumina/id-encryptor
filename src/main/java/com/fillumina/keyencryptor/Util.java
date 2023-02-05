@@ -6,10 +6,10 @@ import java.util.UUID;
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class UUIDUtil {
+public class Util {
 
     /**
-     * Build a UUID from two long values. It's worth noting that only 62 bits of
+     * Build a valid UUID from two long values. Only 62 bits of
      * the {@code leastSigBits} can be used.
      * <p>
      * The {@link UUID#UUID(long,long) } constructor just use all the passed bits disregarding type
@@ -30,4 +30,5 @@ public class UUIDUtil {
         leastSigBits |= (2L << 62); // set 2 MSB to '10'
         return new UUID(mostSigBits, leastSigBits);
     }
+
 }

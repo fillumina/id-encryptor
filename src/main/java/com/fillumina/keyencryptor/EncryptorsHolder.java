@@ -14,13 +14,25 @@ public class EncryptorsHolder {
         private final Encryptor<UUID> uuidEncryptor;
         private final Cache<Object,Object> cache;
         private final long uuidMostSignificantLong;
+        private final LongEncoder longEncoder;
 
         private Holder(Encryptor<Long> longEncryptor, Encryptor<UUID> uuidEncryptor,
-                Cache<Object, Object> cache, long uuidMostSignificantLong) {
+                Cache<Object, Object> cache, long uuidMostSignificantLong,
+                int nodeBits, long nodeId) {
             this.longEncryptor = longEncryptor;
             this.uuidEncryptor = uuidEncryptor;
             this.cache = cache;
+            this.longEncoder = new LongEncoder(nodeBits, nodeId);
             this.uuidMostSignificantLong = uuidMostSignificantLong;
+        }
+
+        public String encryptEncodedLong(long seed, Long value) {
+            return encryptLong(seed, longEncoder.encode(value));
+        }
+
+        public Long decryptEncodedLong(long seed, String value) {
+            long result = decryptLong(seed, value);
+            return longEncoder.decode(result);
         }
 
         public String encryptLong(long seed, Long value) {
@@ -131,6 +143,13 @@ public class EncryptorsHolder {
         private Encryptor<UUID> uuidEncryptor = Encryptor.getPassThrough();
         private Cache<Object,Object> cache = Cache.getNoCache();
         private long uuidMostSignificantLong = 0;
+        private int nodeBits;
+        private long nodeId;
+
+        public void build() {
+            holder = new Holder(longEncryptor, uuidEncryptor, cache, uuidMostSignificantLong,
+                        nodeBits, nodeId);
+        }
 
         public Builder longEncryptor(final Encryptor<Long> value) {
             this.longEncryptor = value;
@@ -147,14 +166,20 @@ public class EncryptorsHolder {
             return this;
         }
 
+        /** @return true if no holder was previously created. */
         public Builder uuidMostSignificantLong(final long value) {
             this.uuidMostSignificantLong = value;
             return this;
         }
 
-        /** @return true if no holder was previously created. */
-        public void build() {
-            holder = new Holder(longEncryptor, uuidEncryptor, cache, uuidMostSignificantLong);
+        public Builder nodeBits(final int value) {
+            this.nodeBits = value;
+            return this;
+        }
+
+        public Builder nodeId(final long value) {
+            this.nodeId = value;
+            return this;
         }
     }
 
