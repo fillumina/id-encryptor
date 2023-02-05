@@ -19,10 +19,12 @@ import java.util.UUID;
 public class EncryptorSerializer extends StdSerializer<Object> implements ContextualSerializer {
 
     private long seed;
+    private ExportType exportType;
 
-    public EncryptorSerializer(long seed) {
+    public EncryptorSerializer(long seed, ExportType exportType) {
         this(null);
         this.seed = seed;
+        this.exportType = exportType;
     }
 
     public EncryptorSerializer() {
@@ -38,7 +40,17 @@ public class EncryptorSerializer extends StdSerializer<Object> implements Contex
       throws IOException, JsonProcessingException {
         Class<?> clazz = value.getClass();
         if (clazz == Long.class) {
-            jgen.writeString(EncryptorsHolder.encryptLong(seed, (long)value));
+            switch(exportType) {
+                case String:
+                    jgen.writeString(EncryptorsHolder.encryptLong(seed, (long)value));
+                    break;
+                case LongAsUuid:
+                    jgen.writeString(EncryptorsHolder.encryptLongAsUuid(seed, (long)value));
+                    break;
+                case Long52Bit:
+                    jgen.writeNumber(EncryptorsHolder.encryptEncodedLong(seed, (long)value));
+                    break;
+            }
         } else if (clazz == UUID.class) {
             jgen.writeString(EncryptorsHolder.encryptUuid((UUID) value));
         }
@@ -49,11 +61,11 @@ public class EncryptorSerializer extends StdSerializer<Object> implements Contex
             throws JsonMappingException {
         Encryptable ann = property.getAnnotation(Encryptable.class);
         if (ann != null) {
-            return new EncryptorSerializer(ann.value());
+            return new EncryptorSerializer(ann.nodeId(), ann.type());
         }
         EncryptableCollection annColl = property.getAnnotation(EncryptableCollection.class);
         if (annColl != null) {
-            return new EncryptorSerializer(annColl.value());
+            return new EncryptorSerializer(annColl.nodeId(), annColl.type());
         }
         return null;
     }

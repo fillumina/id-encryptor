@@ -26,35 +26,35 @@ public class JsonLongAsUuidSerializerTest {
             LONG_VALUE_1, STRING_MAP_VALUE_1, LONG_VALUE_2, STRING_MAP_VALUE_2);
 
     public static class Bean {
-        @EncryptableLongAsUuid
+        @Encryptable
         Long encryptableLongValue = LONG_VALUE_1;
 
-        @EncryptableLongAsUuid(1)
+        @Encryptable(type = ExportType.LongAsUuid, nodeId = 1)
         Long encryptableLongValue1 = LONG_VALUE_1;
 
-        @EncryptableLongAsUuid(2)
+        @Encryptable(type = ExportType.LongAsUuid, nodeId = 2)
         Long encryptableLongValue2 = LONG_VALUE_1;
 
         Long nonEncryptableLongValue = LONG_VALUE_1;
 
-        @EncryptableLongAsUuidCollection
+        @EncryptableCollection(type = ExportType.LongAsUuid)
         List<Long> encryptableLongList = LONG_LIST;
 
-        @EncryptableLongAsUuidCollection(1)
+        @EncryptableCollection(type = ExportType.LongAsUuid, nodeId = 1)
         List<Long> encryptableLongList1 = LONG_LIST;
 
-        @EncryptableLongAsUuidCollection(2)
+        @EncryptableCollection(type = ExportType.LongAsUuid, nodeId = 2)
         List<Long> encryptableLongList2 = LONG_LIST;
 
         List<Long> nonEncryptableLongList = LONG_LIST;
 
-        @EncryptableLongAsUuidKey
+        @EncryptableKey(type = ExportType.LongAsUuid)
         Map<Long, String> encryptableLongMap = LONG_MAP;
 
-        @EncryptableLongAsUuidKey(1)
+        @EncryptableKey(type = ExportType.LongAsUuid, nodeId = 1)
         Map<Long, String> encryptableLongMap1 = LONG_MAP;
 
-        @EncryptableLongAsUuidKey(2)
+        @EncryptableKey(type = ExportType.LongAsUuid, nodeId = 2)
         Map<Long, String> encryptableLongMap2 = LONG_MAP;
 
         Map<Long, String> nonEncryptableLongMap = LONG_MAP;

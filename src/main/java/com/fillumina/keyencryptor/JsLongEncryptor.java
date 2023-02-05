@@ -46,7 +46,7 @@ public class JsLongEncryptor implements Encryptor<Long> {
         try {
             String ciphertext = String.format("%013x", t);
             String decrypted = ff3.decrypt(ciphertext);
-             return Long.parseLong(decrypted, 16);
+            return Long.parseLong(decrypted, 16);
         } catch (BadPaddingException | IllegalBlockSizeException ex) {
             throw new RuntimeException(ex);
         }

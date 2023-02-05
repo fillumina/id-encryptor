@@ -22,6 +22,7 @@ public @interface EncryptableKey {
      * should be already generated unique by a shared generator and are immune
      * to this problem.
      */
-    public long value() default 0;
+    public long nodeId() default 0;
 
+    public ExportType type() default ExportType.String;
 }

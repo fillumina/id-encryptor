@@ -15,8 +15,10 @@ public class EncryptorsHolder {
         private final Cache<Object,Object> cache;
         private final long uuidMostSignificantLong;
         private final LongEncoder longEncoder;
+        private final Encryptor<Long> jsLongEncryptor;
 
         private Holder(Encryptor<Long> longEncryptor, Encryptor<UUID> uuidEncryptor,
+                Encryptor<Long> jsLongEncryptor,
                 Cache<Object, Object> cache, long uuidMostSignificantLong,
                 int nodeBits, long nodeId) {
             this.longEncryptor = longEncryptor;
@@ -24,15 +26,17 @@ public class EncryptorsHolder {
             this.cache = cache;
             this.longEncoder = new LongEncoder(nodeBits, nodeId);
             this.uuidMostSignificantLong = uuidMostSignificantLong;
+            this.jsLongEncryptor = jsLongEncryptor;
         }
 
-        public String encryptEncodedLong(long seed, Long value) {
-            return encryptLong(seed, longEncoder.encode(value));
+        public Long encryptEncodedLong(long seed, Long value) {
+            long encrypted = longEncoder.encode(value);
+            return jsLongEncryptor.encrypt(encrypted);
         }
 
-        public Long decryptEncodedLong(long seed, String value) {
-            long result = decryptLong(seed, value);
-            return longEncoder.decode(result);
+        public Long decryptEncodedLong(long seed, Long value) {
+            long decrypted = jsLongEncryptor.decrypt(value);
+            return longEncoder.decode(decrypted);
         }
 
         public String encryptLong(long seed, Long value) {
@@ -81,6 +85,14 @@ public class EncryptorsHolder {
 
     private static Holder holder;
 
+    public static Long encryptEncodedLong(long seed, Long value) {
+        return holder.encryptEncodedLong(seed, value);
+    }
+
+    public static Long decryptEncodedLong(long seed, Long value) {
+        return holder.decryptEncodedLong(seed, value);
+    }
+
     /** Seed is assumed 0. */
     public static String encryptLong(Long value) {
         return holder.encryptLong(0L, value);
@@ -124,9 +136,12 @@ public class EncryptorsHolder {
     }
 
     public static void initEncryptorsWithPasswordAndNodeId(String password, int nodeId) {
+        String pass = password.substring(0, password.length() / 2);
+        String tweak = password.substring(password.length() / 2);
         builder()
             .longEncryptor(new LongEncryptor(password))
             .uuidEncryptor(new UuidEncryptor(password))
+            .jsLongEncryptor(new JsLongEncryptor(pass, tweak))
             .cache(new ConcurrentCache<Object,Object>())
             .uuidMostSignificantLong(((long)nodeId) << 32)
             .build();
@@ -141,14 +156,15 @@ public class EncryptorsHolder {
 
         private Encryptor<Long> longEncryptor = Encryptor.getPassThrough();
         private Encryptor<UUID> uuidEncryptor = Encryptor.getPassThrough();
+        private Encryptor<Long> jsLongEncryptor = Encryptor.getPassThrough();
         private Cache<Object,Object> cache = Cache.getNoCache();
         private long uuidMostSignificantLong = 0;
         private int nodeBits;
         private long nodeId;
 
         public void build() {
-            holder = new Holder(longEncryptor, uuidEncryptor, cache, uuidMostSignificantLong,
-                        nodeBits, nodeId);
+            holder = new Holder(longEncryptor, uuidEncryptor, jsLongEncryptor,
+                    cache, uuidMostSignificantLong, nodeBits, nodeId);
         }
 
         public Builder longEncryptor(final Encryptor<Long> value) {
@@ -158,6 +174,11 @@ public class EncryptorsHolder {
 
         public Builder uuidEncryptor(final Encryptor<UUID> value) {
             this.uuidEncryptor = value;
+            return this;
+        }
+
+        public Builder jsLongEncryptor(final Encryptor<Long> value) {
+            this.jsLongEncryptor = value;
             return this;
         }
 

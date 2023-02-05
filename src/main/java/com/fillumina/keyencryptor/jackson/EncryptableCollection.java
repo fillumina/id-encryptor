@@ -16,12 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 @JsonDeserialize(contentUsing = EncryptorDeserializer.class)
 public @interface EncryptableCollection {
 
-    /**
-     * Defines a seed to use to scramble sequences from different fields so they
-     * will not have the same encrypted string. It does not apply to UUIDs that
-     * should be already generated unique by a shared generator and are immune
-     * to this problem.
-     */
-    public long value() default 0;
+    public long nodeId() default 0;
 
+    public ExportType type() default ExportType.String;
 }

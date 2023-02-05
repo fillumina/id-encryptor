@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fillumina.keyencryptor.EncryptorsHolder;
+import static com.fillumina.keyencryptor.jackson.ExportType.Long52Bit;
+import static com.fillumina.keyencryptor.jackson.ExportType.LongAsUuid;
+import static com.fillumina.keyencryptor.jackson.ExportType.String;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -19,10 +22,12 @@ import java.util.UUID;
 public class EncryptorKeySerializer extends StdSerializer<Object> implements ContextualSerializer {
 
     private long seed;
+    private ExportType exportType;
 
-    public EncryptorKeySerializer(long seed) {
+    public EncryptorKeySerializer(long seed, ExportType exportType) {
         this(null);
         this.seed = seed;
+        this.exportType = exportType;
     }
 
     public EncryptorKeySerializer() {
@@ -38,10 +43,21 @@ public class EncryptorKeySerializer extends StdSerializer<Object> implements Con
       throws IOException, JsonProcessingException {
         Class<?> clazz = value.getClass();
         if (clazz == Long.class) {
-            jgen.writeFieldName(EncryptorsHolder.encryptLong(seed, (long)value));
+            switch(exportType) {
+                case String:
+                    jgen.writeFieldName(EncryptorsHolder.encryptLong(seed, (long)value));
+                    break;
+                case LongAsUuid:
+                    jgen.writeFieldName(EncryptorsHolder.encryptLongAsUuid(seed, (long)value));
+                    break;
+                case Long52Bit:
+                    jgen.writeFieldId(EncryptorsHolder.encryptEncodedLong(seed, (long)value));
+                    break;
+            }
         } else if (clazz == UUID.class) {
             jgen.writeFieldName(EncryptorsHolder.encryptUuid((UUID) value));
         }
+
     }
 
     @Override
@@ -49,7 +65,7 @@ public class EncryptorKeySerializer extends StdSerializer<Object> implements Con
             throws JsonMappingException {
         EncryptableKey ann = property.getAnnotation(EncryptableKey.class);
         if (ann != null) {
-            return new EncryptorKeySerializer(ann.value());
+            return new EncryptorKeySerializer(ann.nodeId(), ann.type());
         }
         return null;
     }

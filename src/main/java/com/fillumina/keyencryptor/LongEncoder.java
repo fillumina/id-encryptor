@@ -74,6 +74,9 @@ public class LongEncoder {
     }
 
     static long createBitMask(int bitNumber) {
+        if (bitNumber == 64) {
+            return Long.MAX_VALUE;
+        }
         if (bitNumber < 0) {
             throw new IllegalArgumentException("argument must be a positive integer, was " +
                     bitNumber);

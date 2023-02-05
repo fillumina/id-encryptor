@@ -30,4 +30,12 @@ public class EncryptorsHolderTest {
         assertEquals(a, decrypted ^ b);
         assertEquals(b, decrypted ^ a);
     }
+
+    @Test
+    public void shouldConvertLong52() {
+        final long value = 1234L;
+        long encrypted = EncryptorsHolder.encryptEncodedLong(0, value);
+        long decrypted = EncryptorsHolder.decryptEncodedLong(0, encrypted);
+        assertEquals(value, decrypted);
+    }
 }

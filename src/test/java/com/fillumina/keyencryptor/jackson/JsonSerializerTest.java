@@ -33,44 +33,62 @@ public class JsonSerializerTest {
             UUID_VALUE_1, STRING_MAP_VALUE_1, UUID_VALUE_2, STRING_MAP_VALUE_2);
 
     public static class Bean {
-        @Encryptable
+        @Encryptable(type = ExportType.String)
         Long encryptableLongValue = LONG_VALUE_1;
 
-        @Encryptable(2)
+        @Encryptable(type = ExportType.String, nodeId = 2)
         Long encryptableLongValue2 = LONG_VALUE_1;
 
-        @Encryptable(3)
+        @Encryptable(type = ExportType.String, nodeId = 3)
         Long encryptableLongValue3 = LONG_VALUE_1;
+
+        @Encryptable(type = ExportType.Long52Bit)
+        Long encryptableLong52Value = LONG_VALUE_1;
+
+        @Encryptable(type = ExportType.LongAsUuid)
+        Long encryptableLongAsUuidValue = LONG_VALUE_1;
 
         Long nonEncryptableLongValue = LONG_VALUE_1;
 
-        @EncryptableCollection
+        @EncryptableCollection(type = ExportType.String)
         List<Long> encryptableLongList = LONG_LIST;
 
-        @EncryptableCollection(2)
+        @EncryptableCollection(type = ExportType.String, nodeId = 2)
         List<Long> encryptableLongList2 = LONG_LIST;
+
+        @EncryptableCollection(type = ExportType.Long52Bit)
+        List<Long> encryptableLong52List = LONG_LIST;
+
+        @EncryptableCollection(type = ExportType.Long52Bit)
+        List<Long> encryptableLongAsUuidList = LONG_LIST;
 
         List<Long> nonEncryptableLongList = LONG_LIST;
 
-        @EncryptableKey
+        @EncryptableKey(type = ExportType.String)
         Map<Long, String> encryptableLongMap = LONG_MAP;
 
-        @EncryptableKey(2)
+        @EncryptableKey(type = ExportType.String, nodeId = 2)
         Map<Long, String> encryptableLongMap2 = LONG_MAP;
+
+        @EncryptableKey(type = ExportType.Long52Bit)
+        Map<Long, String> encryptableLong52Map = LONG_MAP;
+
+        @EncryptableKey(type = ExportType.LongAsUuid)
+        Map<Long, String> encryptableLongAsUuidMap = LONG_MAP;
 
         Map<Long, String> nonEncryptableLongMap = LONG_MAP;
 
-        @Encryptable
+        @Encryptable(type = ExportType.Uuid)
         UUID encryptableUuidValue = UUID_VALUE_1;
 
         UUID nonEncryptableUuidValue = UUID_VALUE_2;
 
-        @EncryptableCollection
+        @EncryptableCollection(type = ExportType.Uuid)
         List<UUID> encryptableUuidList = UUID_LIST;
 
         List<UUID> nonEncryptableUuidList = UUID_LIST;
 
-        @EncryptableKey
+        @EncryptableKey(type = ExportType.Uuid)
         Map<UUID, String> encryptableUuidMap = UUID_MAP;
 
         Map<UUID, String> nonEncryptableUuidMap = UUID_MAP;
@@ -80,14 +98,20 @@ public class JsonSerializerTest {
         String encryptableLongValue;
         String encryptableLongValue2;
         String encryptableLongValue3;
+        Long encryptableLong52Value;
+        String encryptableLongAsUuidValue;
         Long nonEncryptableLongValue;
 
         List<String> encryptableLongList;
         List<String> encryptableLongList2;
+        List<Long> encryptableLong52List;
+        List<String> encryptableLongAsUuidList;
         List<Long> nonEncryptableLongList;
 
         Map<String, String> encryptableLongMap;
         Map<String, String> encryptableLongMap2;
+        Map<Long, String> encryptableLong52Map;
+        Map<String, String> encryptableLongAsUuidMap;
         Map<Long, String> nonEncryptableLongMap;
 
         String encryptableUuidValue;
@@ -139,6 +163,18 @@ public class JsonSerializerTest {
     }
 
     @Test
+    public void shouldSerializeLong52() {
+        assertNotEquals(originalBean.encryptableLong52Value, encryptedBean.encryptableLong52Value);
+        assertEquals(originalBean.encryptableLong52Value, decryptedBean.encryptableLong52Value);
+    }
+
+    @Test
+    public void shouldSerializeLongAsUuid() {
+        assertNotEquals(originalBean.encryptableLongAsUuidValue, encryptedBean.encryptableLongAsUuidValue);
+        assertEquals(originalBean.encryptableLongAsUuidValue, decryptedBean.encryptableLongAsUuidValue);
+    }
+
+    @Test
     public void shouldSerializeLongLists() throws Exception {
         assertNotEquals(originalBean.encryptableLongList, encryptedBean.encryptableLongList);
         assertEquals(originalBean.nonEncryptableLongList, encryptedBean.nonEncryptableLongList);
@@ -156,6 +192,18 @@ public class JsonSerializerTest {
     }
 
     @Test
+    public void shouldSerializeLong52List() {
+        assertNotEquals(originalBean.encryptableLong52List, encryptedBean.encryptableLong52List);
+        assertEquals(originalBean.encryptableLong52List, decryptedBean.encryptableLong52List);
+    }
+
+    @Test
+    public void shouldSerializeLongAsUuidList() {
+        assertNotEquals(originalBean.encryptableLongAsUuidList, encryptedBean.encryptableLongAsUuidList);
+        assertEquals(originalBean.encryptableLongAsUuidList, decryptedBean.encryptableLongAsUuidList);
+    }
+
+    @Test
     public void shouldSerializeLongMapKeys() throws Exception {
         assertNotEquals(originalBean.encryptableLongMap, encryptedBean.encryptableLongMap);
         assertEquals(originalBean.nonEncryptableLongMap, encryptedBean.nonEncryptableLongMap);
@@ -170,6 +218,18 @@ public class JsonSerializerTest {
         assertNotEquals(originalBean.encryptableLongMap2, encryptedBean.encryptableLongMap2);
 
         assertEquals(originalBean.encryptableLongMap2, decryptedBean.encryptableLongMap2);
+    }
+
+    @Test
+    public void shouldSerializeLong52Map() {
+        assertNotEquals(originalBean.encryptableLong52Map, encryptedBean.encryptableLong52Map);
+        assertEquals(originalBean.encryptableLong52Map, decryptedBean.encryptableLong52Map);
+    }
+
+    @Test
+    public void shouldSerializeLongAsUuidMap() {
+        assertNotEquals(originalBean.encryptableLongAsUuidMap, encryptedBean.encryptableLongAsUuidMap);
+        assertEquals(originalBean.encryptableLongAsUuidMap, decryptedBean.encryptableLongAsUuidMap);
     }
 
     @Test

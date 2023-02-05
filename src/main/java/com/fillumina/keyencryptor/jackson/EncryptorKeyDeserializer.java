@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fillumina.keyencryptor.EncryptorsHolder;
 import com.fillumina.keyencryptor.LongCrockfordConverter;
+import static com.fillumina.keyencryptor.jackson.ExportType.Long52Bit;
+import static com.fillumina.keyencryptor.jackson.ExportType.LongAsUuid;
+import static com.fillumina.keyencryptor.jackson.ExportType.Uuid;
 
 /**
  *
@@ -15,10 +18,12 @@ import com.fillumina.keyencryptor.LongCrockfordConverter;
 public class EncryptorKeyDeserializer extends KeyDeserializer implements ContextualKeyDeserializer {
 
     private long seed;
+    private ExportType exportType;
 
-    public EncryptorKeyDeserializer(long seed) {
+    public EncryptorKeyDeserializer(long seed, ExportType exportType) {
         this();
         this.seed = seed;
+        this.exportType = exportType;
     }
 
     public EncryptorKeyDeserializer() {
@@ -30,8 +35,17 @@ public class EncryptorKeyDeserializer extends KeyDeserializer implements Context
         if (LongCrockfordConverter.isValidCharArray(encryptedString.toCharArray())) {
             return EncryptorsHolder.decryptLong(seed, encryptedString);
         } else {
-            return EncryptorsHolder.decryptUuid(encryptedString);
+            switch(exportType) {
+                case Uuid:
+                    return EncryptorsHolder.decryptUuid(encryptedString);
+                case LongAsUuid:
+                    return EncryptorsHolder.decryptLongAsUuid(encryptedString);
+                case Long52Bit:
+                    Long value = Long.parseLong(encryptedString);
+                    return EncryptorsHolder.decryptEncodedLong(seed, value);
+            }
         }
+        return null;
     }
 
     @Override
@@ -39,7 +53,7 @@ public class EncryptorKeyDeserializer extends KeyDeserializer implements Context
             throws JsonMappingException {
         EncryptableKey ann = property.getAnnotation(EncryptableKey.class);
         if (ann != null) {
-            return new EncryptorKeyDeserializer(ann.value());
+            return new EncryptorKeyDeserializer(ann.nodeId(), ann.type());
         }
         return null;
     }
