@@ -130,7 +130,7 @@ Of course ID **parameters passed on the URL** should be converted manually.
 ```java
 @GetMapping("/invoices/{customerId}")
 public List<Invoice> getInvoices(@PathVariable String customerId) {
-    UUID userId = EncryptorsHolder.decryptUuid(customerId);
+    UUID userId = EncryptorsHolder.decryptLong(customerId);
     return accountinService.getInvoicesOfCustomer(userId);
 }
 ```
