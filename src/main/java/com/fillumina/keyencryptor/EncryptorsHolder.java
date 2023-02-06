@@ -15,6 +15,7 @@ public class EncryptorsHolder {
         private final Cache<Object,Object> cache;
         private final long uuidMostSignificantLong;
         private final LongEncoder longEncoder;
+        private final LongEncoder long52Encoder;
         private final Encryptor<Long> jsLongEncryptor;
 
         private Holder(Encryptor<Long> longEncryptor, Encryptor<UUID> uuidEncryptor,
@@ -23,18 +24,29 @@ public class EncryptorsHolder {
                 int nodeBits, long nodeId) {
             this.longEncryptor = longEncryptor;
             this.uuidEncryptor = uuidEncryptor;
-            this.cache = cache;
-            this.longEncoder = new LongEncoder(nodeBits, nodeId);
-            this.uuidMostSignificantLong = uuidMostSignificantLong;
             this.jsLongEncryptor = jsLongEncryptor;
+            this.longEncoder = new LongEncoder(nodeBits, nodeId);
+            this.long52Encoder = new LongEncoder(nodeBits, nodeId, true);
+            this.cache = cache;
+            this.uuidMostSignificantLong = uuidMostSignificantLong;
         }
 
-        public Long encryptEncodedLong(long seed, Long value) {
+        public long encryptEncodedLong52(long value) {
+            long encrypted = long52Encoder.encode(value);
+            return jsLongEncryptor.encrypt(encrypted);
+        }
+
+        public long decryptEncodedLong52(long value) {
+            long decrypted = jsLongEncryptor.decrypt(value);
+            return long52Encoder.decode(decrypted);
+        }
+
+        public long encryptEncodedLong(long value) {
             long encrypted = longEncoder.encode(value);
             return jsLongEncryptor.encrypt(encrypted);
         }
 
-        public Long decryptEncodedLong(long seed, Long value) {
+        public long decryptEncodedLong(long value) {
             long decrypted = jsLongEncryptor.decrypt(value);
             return longEncoder.decode(decrypted);
         }
@@ -83,47 +95,98 @@ public class EncryptorsHolder {
 
     }
 
+    private static final long MAX52 = (1L << 52) - 1;
     private static Holder holder;
 
-    public static Long encryptEncodedLong(long seed, Long value) {
-        return holder.encryptEncodedLong(seed, value);
+    public static Long encryptEncodedLong52(Long value) {
+        if (value == null) {
+            return null;
+        }
+        if (value > MAX52) {
+            throw new IllegalArgumentException("value cannot be bigger than 52 bits, was " + value);
+        }
+        return holder.encryptEncodedLong52(value);
     }
 
-    public static Long decryptEncodedLong(long seed, Long value) {
-        return holder.decryptEncodedLong(seed, value);
+    public static Long decryptEncodedLong52(Long value) {
+        if (value == null) {
+            return null;
+        }
+        if (value > MAX52) {
+            throw new IllegalArgumentException("value cannot be bigger than 52 bits, was " + value);
+        }
+        return holder.decryptEncodedLong52(value);
+    }
+
+    public static Long encryptEncodedLong(Long value) {
+        if (value == null) {
+            return null;
+        }
+        return holder.encryptEncodedLong(value);
+    }
+
+    public static Long decryptEncodedLong(Long value) {
+        if (value == null) {
+            return null;
+        }
+        return holder.decryptEncodedLong(value);
     }
 
     /** Seed is assumed 0. */
     public static String encryptLong(Long value) {
+        if (value == null) {
+            return null;
+        }
         return holder.encryptLong(0L, value);
     }
 
     public static String encryptLong(long seed, Long value) {
+        if (value == null) {
+            return null;
+        }
         return holder.encryptLong(seed, value);
     }
 
     /** Seed is assumed 0. */
     public static Long decryptLong(String value) {
+        if (value == null) {
+            return null;
+        }
         return holder.decryptLong(0L, value);
     }
 
     public static Long decryptLong(long seed, String value) {
+        if (value == null) {
+            return null;
+        }
         return holder.decryptLong(seed, value);
     }
 
     public static String encryptUuid(UUID value) {
+        if (value == null) {
+            return null;
+        }
         return holder.encryptUuid(value);
     }
 
     public static UUID decryptUuid(String value) {
+        if (value == null) {
+            return null;
+        }
         return holder.decryptUuid(value);
     }
 
-    public static String encryptLongAsUuid(long fieldId, Long id) {
-        return holder.encryptLongAsUuid(fieldId, id);
+    public static String encryptLongAsUuid(long fieldId, Long value) {
+        if (value == null) {
+            return null;
+        }
+        return holder.encryptLongAsUuid(fieldId, value);
     }
 
     public static Long decryptLongAsUuid(String value) {
+        if (value == null) {
+            return null;
+        }
         return holder.decryptLongAsUuid(value);
     }
 

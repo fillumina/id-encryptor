@@ -5,11 +5,10 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fillumina.keyencryptor.EncryptorsHolder;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,120 +16,16 @@ import org.junit.jupiter.api.Test;
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
 public class JsonSerializerTest {
-    private static final long LONG_VALUE_1 = 123L;
-    private static final long LONG_VALUE_2 = 456L;
-    private static final String STRING_MAP_VALUE_1 = "xxxx";
-    private static final String STRING_MAP_VALUE_2 = "yyyy";
+    private static final long LONG_1 = 123L;
+    private static final long LONG_2 = 456L;
 
-    private static final List<Long> LONG_LIST = List.of(LONG_VALUE_1, LONG_VALUE_2);
-    private static final Map<Long, String> LONG_MAP = Map.of(
-            LONG_VALUE_1, STRING_MAP_VALUE_1, LONG_VALUE_2, STRING_MAP_VALUE_2);
+    private static final String STRING_1 = "xxxx";
+    private static final String STRING_2 = "yyyy";
 
-    private static final UUID UUID_VALUE_1 = UUID.fromString("9786f121-209a-4f16-8d4a-2ef306d74a8d");
-    private static final UUID UUID_VALUE_2 = UUID.fromString("7e3bd548-6494-45f7-a5d8-548e3852bc7c");
-    private static final List<UUID> UUID_LIST = List.of(UUID_VALUE_1, UUID_VALUE_2);
-    private static final Map<UUID, String> UUID_MAP = Map.of(
-            UUID_VALUE_1, STRING_MAP_VALUE_1, UUID_VALUE_2, STRING_MAP_VALUE_2);
+    private static final UUID UUID_1 = UUID.fromString("9786f121-209a-4f16-8d4a-2ef306d74a8d");
+    private static final UUID UUID_2 = UUID.fromString("7e3bd548-6494-45f7-a5d8-548e3852bc7c");
 
-    public static class Bean {
-        // serialized as an encrypted string
-        @Encryptable(type = ExportType.String)
-        Long encryptableLongValue = LONG_VALUE_1;
-
-        // uses a nodeId=2 to encrypt to a different string than the previous
-        @Encryptable(type = ExportType.String, nodeId = 2)
-        Long encryptableLongValue2 = LONG_VALUE_1;
-
-        // uses a nodeId=3 to encrypt to a different string than the previous
-        @Encryptable(type = ExportType.String, nodeId = 3)
-        Long encryptableLongValue3 = LONG_VALUE_1;
-
-        // encrypts to a long number of 52 bit max usable by javascript
-        @Encryptable(type = ExportType.Long52Bit)
-        Long encryptableLong52Value = LONG_VALUE_1;
-
-        // encrypts to a UUID created from the long id
-        // (optionally you can set a nodeId)
-        @Encryptable(type = ExportType.LongAsUuid)
-        Long encryptableLongAsUuidValue = LONG_VALUE_1;
-
-        Long nonEncryptableLongValue = LONG_VALUE_1;
-
-        @EncryptableCollection(type = ExportType.String)
-        List<Long> encryptableLongList = LONG_LIST;
-
-        @EncryptableCollection(type = ExportType.String, nodeId = 2)
-        List<Long> encryptableLongList2 = LONG_LIST;
-
-        @EncryptableCollection(type = ExportType.Long52Bit)
-        List<Long> encryptableLong52List = LONG_LIST;
-
-        @EncryptableCollection(type = ExportType.Long52Bit)
-        List<Long> encryptableLongAsUuidList = LONG_LIST;
-
-        List<Long> nonEncryptableLongList = LONG_LIST;
-
-        @EncryptableKey(type = ExportType.String)
-        Map<Long, String> encryptableLongMap = LONG_MAP;
-
-        @EncryptableKey(type = ExportType.String, nodeId = 2)
-        Map<Long, String> encryptableLongMap2 = LONG_MAP;
-
-        @EncryptableKey(type = ExportType.Long52Bit)
-        Map<Long, String> encryptableLong52Map = LONG_MAP;
-
-        @EncryptableKey(type = ExportType.LongAsUuid)
-        Map<Long, String> encryptableLongAsUuidMap = LONG_MAP;
-
-        Map<Long, String> nonEncryptableLongMap = LONG_MAP;
-
-        @Encryptable(type = ExportType.Uuid)
-        UUID encryptableUuidValue = UUID_VALUE_1;
-
-        UUID nonEncryptableUuidValue = UUID_VALUE_2;
-
-        @EncryptableCollection(type = ExportType.Uuid)
-        List<UUID> encryptableUuidList = UUID_LIST;
-
-        List<UUID> nonEncryptableUuidList = UUID_LIST;
-
-        @EncryptableKey(type = ExportType.Uuid)
-        Map<UUID, String> encryptableUuidMap = UUID_MAP;
-
-        Map<UUID, String> nonEncryptableUuidMap = UUID_MAP;
-    }
-
-    public static class SerializedBean {
-        String encryptableLongValue;
-        String encryptableLongValue2;
-        String encryptableLongValue3;
-        Long encryptableLong52Value;
-        String encryptableLongAsUuidValue;
-        Long nonEncryptableLongValue;
-
-        List<String> encryptableLongList;
-        List<String> encryptableLongList2;
-        List<Long> encryptableLong52List;
-        List<String> encryptableLongAsUuidList;
-        List<Long> nonEncryptableLongList;
-
-        Map<String, String> encryptableLongMap;
-        Map<String, String> encryptableLongMap2;
-        Map<Long, String> encryptableLong52Map;
-        Map<String, String> encryptableLongAsUuidMap;
-        Map<Long, String> nonEncryptableLongMap;
-
-        String encryptableUuidValue;
-        UUID nonEncryptableUuidValue;
-
-        List<String> encryptableUuidList;
-        List<UUID> nonEncryptableUuidList;
-
-        Map<String, String> encryptableUuidMap;
-        Map<UUID, String> nonEncryptableUuidMap;
-    }
-
-    private Bean originalBean = new Bean();
+    private Bean originalBean = new Bean(LONG_1, LONG_2, UUID_1, UUID_2, STRING_1, STRING_2);
     private final SerializedBean encryptedBean;
     private final String serialized;
     private final Bean decryptedBean;
@@ -146,6 +41,20 @@ public class JsonSerializerTest {
         this.decryptedBean = objectMapper.readValue(serialized, Bean.class);
 
         // System.out.println("SERIALIZED: " + serialized);
+    }
+
+    @Test
+    public void shouldEncryptLongNullValueToNull() {
+        assertNull(originalBean.encryptableLongNullValue);
+        assertNull(encryptedBean.encryptableLongNullValue);
+        assertNull(decryptedBean.encryptableLongNullValue);
+    }
+
+    @Test
+    public void shouldEncryptLong52NullValueToNull() {
+        assertNull(originalBean.encryptableLong52NullValue);
+        assertNull(encryptedBean.encryptableLong52NullValue);
+        assertNull(decryptedBean.encryptableLong52NullValue);
     }
 
     @Test

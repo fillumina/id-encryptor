@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fillumina.keyencryptor.EncryptorsHolder;
 import com.fillumina.keyencryptor.LongCrockfordConverter;
+import static com.fillumina.keyencryptor.jackson.ExportType.Long52Bit;
 import static com.fillumina.keyencryptor.jackson.ExportType.Uuid;
 import java.io.IOException;
 
@@ -49,8 +50,9 @@ public class EncryptorDeserializer extends StdDeserializer<Object> implements Co
                 case LongAsUuid:
                     return EncryptorsHolder.decryptLongAsUuid(encryptedString);
                 case Long52Bit:
-                    Long value = Long.parseLong(encryptedString);
-                    return EncryptorsHolder.decryptEncodedLong(seed, value);
+                    return EncryptorsHolder.decryptEncodedLong52(Long.parseLong(encryptedString));
+                case Long:
+                    return EncryptorsHolder.decryptEncodedLong(Long.parseLong(encryptedString));
             }
         }
         return null;

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fillumina.keyencryptor.EncryptorsHolder;
+import static com.fillumina.keyencryptor.jackson.ExportType.Long52Bit;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -48,7 +49,10 @@ public class EncryptorSerializer extends StdSerializer<Object> implements Contex
                     jgen.writeString(EncryptorsHolder.encryptLongAsUuid(seed, (long)value));
                     break;
                 case Long52Bit:
-                    jgen.writeNumber(EncryptorsHolder.encryptEncodedLong(seed, (long)value));
+                    jgen.writeNumber(EncryptorsHolder.encryptEncodedLong52((long)value));
+                    break;
+                case Long:
+                    jgen.writeNumber(EncryptorsHolder.encryptEncodedLong((long)value));
                     break;
             }
         } else if (clazz == UUID.class) {

@@ -51,7 +51,10 @@ public class EncryptorKeySerializer extends StdSerializer<Object> implements Con
                     jgen.writeFieldName(EncryptorsHolder.encryptLongAsUuid(seed, (long)value));
                     break;
                 case Long52Bit:
-                    jgen.writeFieldId(EncryptorsHolder.encryptEncodedLong(seed, (long)value));
+                    jgen.writeFieldId(EncryptorsHolder.encryptEncodedLong52((long)value));
+                    break;
+                case Long:
+                    jgen.writeFieldId(EncryptorsHolder.encryptEncodedLong((long)value));
                     break;
             }
         } else if (clazz == UUID.class) {

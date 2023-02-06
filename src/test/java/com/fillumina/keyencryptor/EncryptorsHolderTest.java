@@ -1,6 +1,7 @@
 package com.fillumina.keyencryptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +35,29 @@ public class EncryptorsHolderTest {
     @Test
     public void shouldConvertLong52() {
         final long value = 1234L;
-        long encrypted = EncryptorsHolder.encryptEncodedLong(0, value);
-        long decrypted = EncryptorsHolder.decryptEncodedLong(0, encrypted);
+        long encrypted = EncryptorsHolder.encryptEncodedLong52(value);
+        long decrypted = EncryptorsHolder.decryptEncodedLong52(encrypted);
         assertEquals(value, decrypted);
+    }
+
+    @Test
+    public void shouldNotEncryptToLong52AValueBiggerThan52Bits() {
+        final long value = (1L << 53) ;
+        assertThrows(IllegalArgumentException.class, () -> {
+            EncryptorsHolder.encryptEncodedLong52(value);
+        });
+    }
+
+    @Test
+    public void shouldNotDecryptToLong52AValueBiggerThan52Bits() {
+        final long value = (1L << 53) ;
+        assertThrows(IllegalArgumentException.class, () -> {
+            EncryptorsHolder.decryptEncodedLong52(value);
+        });
+    }
+
+    @Test
+    public void shouldEncryptNullValuesIntoNulls() {
+        
     }
 }

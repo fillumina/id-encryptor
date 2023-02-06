@@ -41,8 +41,9 @@ public class EncryptorKeyDeserializer extends KeyDeserializer implements Context
                 case LongAsUuid:
                     return EncryptorsHolder.decryptLongAsUuid(encryptedString);
                 case Long52Bit:
-                    Long value = Long.parseLong(encryptedString);
-                    return EncryptorsHolder.decryptEncodedLong(seed, value);
+                    return EncryptorsHolder.decryptEncodedLong52(Long.parseLong(encryptedString));
+                case Long:
+                    return EncryptorsHolder.decryptEncodedLong(Long.parseLong(encryptedString));
             }
         }
         return null;
